@@ -35,6 +35,17 @@ The first version should work for:
 - Codex CLI
 - Codex desktop app / IDE-backed local Codex workflows that honor the same repo-scoped `.codex/` config
 
+## Dogfood Loop
+
+The first local loop is:
+
+1. Start the local receiver with `npm run dev -- serve 4318`
+2. Install repo-local Codex config with `npm run dev -- install 4318`
+3. Use Codex normally in this repo
+4. Inspect normalized events under `.ai/private/events/*.jsonl`
+
+The current implementation focuses on OTLP/HTTP JSON log ingestion first. That is enough to prove the normalization path, token capture, and token-based cost estimation.
+
 ## Product Principles
 
 - Passive by default, not blocking
@@ -62,3 +73,4 @@ The first version should work for:
 6. Emit a small public or local-only summary view for debugging.
 
 See [docs/codex-mvp.md](/Users/selcukcihan/code/eyes-for-ai/docs/codex-mvp.md) for the concrete MVP shape.
+See [docs/schema.md](/Users/selcukcihan/code/eyes-for-ai/docs/schema.md) for the first normalized event contract.
