@@ -1,2 +1,3 @@
 {"timestamp":"2026-04-21T11:19:46Z","prompt":"Let's change the storage directory choice of \".ai\" as \".eyes4ai\""}
 {"timestamp":"2026-04-21T11:25:14Z","prompt":"Let's simplify README.md it has too much clutter and it is too robotic. As a customer, I want to see at a glance:\n- how it works\n- what data it sources and from where\n- how it stores the data locally, what is the schema it uses when storing the data"}
+{"timestamp":"2026-04-21T11:31:41Z","prompt":"Please go over all the links in the docs and ensure they use relative paths. I tried the docs/schema.md link in the readme.md file and it is broken because it refers to full path instead of relative."}

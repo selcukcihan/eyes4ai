@@ -95,7 +95,7 @@ Current normalized event types:
 - `git.commit`
 - `codex.raw`
 
-The full schema reference lives in [docs/schema.md](/Users/selcukcihan/code/eyes4ai/docs/schema.md).
+The full schema reference lives in [docs/schema.md](docs/schema.md).
 
 ## Quick Commands
 
