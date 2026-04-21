@@ -18,7 +18,7 @@ async function main(): Promise<void> {
     const port = portArg ? Number(portArg) : 4318;
     const server = startServer(rootDir, port);
     process.stdout.write(`eyes4ai server listening on http://127.0.0.1:${port}\n`);
-    process.stdout.write(`writing events to ${path.join(rootDir, ".ai", "private", "events")}\n`);
+    process.stdout.write(`writing events to ${path.join(rootDir, ".eyes4ai", "private", "events")}\n`);
     process.on("SIGINT", () => {
       server.close(() => process.exit(0));
     });
@@ -36,7 +36,7 @@ async function main(): Promise<void> {
   }
 
   if (command === "reprocess") {
-    const target = rest[0] ?? path.join(rootDir, ".ai", "private", "events", `${new Date().toISOString().slice(0, 10)}.jsonl`);
+    const target = rest[0] ?? path.join(rootDir, ".eyes4ai", "private", "events", `${new Date().toISOString().slice(0, 10)}.jsonl`);
     const content = await readFile(target, "utf8");
     const upgraded = content
       .split("\n")

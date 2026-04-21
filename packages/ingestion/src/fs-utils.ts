@@ -12,5 +12,5 @@ export async function appendJsonLine(filePath: string, value: unknown): Promise<
 
 export function todayJsonlPath(rootDir: string): string {
   const isoDay = new Date().toISOString().slice(0, 10);
-  return path.join(rootDir, ".ai", "private", "events", `${isoDay}.jsonl`);
+  return path.join(rootDir, ".eyes4ai", "private", "events", `${isoDay}.jsonl`);
 }

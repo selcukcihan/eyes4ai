@@ -2,7 +2,7 @@
 
 `eyes4ai` is a minimal-friction AI activity ledger for Git repositories.
 
-The current prototype focuses on Codex. It collects Codex OpenTelemetry locally, normalizes the event stream, and writes append-only JSONL files under `.ai/private/events/`.
+The current prototype focuses on Codex. It collects Codex OpenTelemetry locally, normalizes the event stream, and writes append-only JSONL files under `.eyes4ai/private/events/`.
 
 ## What It Does Today
 
@@ -52,16 +52,16 @@ For Codex Desktop, the more reliable current setup is to place the same OTel blo
 5. Inspect the resulting event file:
 
 ```bash
-tail -f .ai/private/events/$(date -u +%F).jsonl
+tail -f .eyes4ai/private/events/$(date -u +%F).jsonl
 ```
 
 If you collected events before a normalizer upgrade, reprocess them in place with:
 
 ```bash
-npm run dev -- reprocess .ai/private/events/$(date -u +%F).jsonl
+npm run dev -- reprocess .eyes4ai/private/events/$(date -u +%F).jsonl
 ```
 
-Because this project is still in active development and not yet customer-facing, the preferred approach is to wipe and regenerate local telemetry when a schema or normalization change makes that cleaner. Do not treat `.ai/private/` data as durable at this stage.
+Because this project is still in active development and not yet customer-facing, the preferred approach is to wipe and regenerate local telemetry when a schema or normalization change makes that cleaner. Do not treat `.eyes4ai/private/` data as durable at this stage.
 
 ## Commands
 
@@ -84,9 +84,9 @@ Because this project is still in active development and not yet customer-facing,
 
 Current local files:
 
-- `.ai/private/events/*.jsonl`
+- `.eyes4ai/private/events/*.jsonl`
   Local normalized event stream.
-- `.ai/prompt-log.jsonl`
+- `.eyes4ai/prompt-log.jsonl`
   Append-only repo log of prompts that changed tracked files.
 - `.codex/config.toml`
   Repo-local Codex OTel config used for dogfooding.
@@ -106,8 +106,8 @@ Current repo layout:
 
 Recommended default:
 
-- do not commit `.ai/private/`
-- do not commit `.ai/state/`
+- do not commit `.eyes4ai/private/`
+- do not commit `.eyes4ai/state/`
 - do not commit raw event logs
 - only commit stable config or curated summaries later if explicitly desired
 
@@ -120,7 +120,7 @@ The current repo ignores the private event stream by default because raw AI tele
 - Transport-level events are intentionally noisy and are not yet collapsed into user-facing summaries.
 - Cost is an estimate, not invoice-equivalent billing.
 - Codex product usage and API-key usage do not map to the same unit. The report now shows Codex credits when the official Codex rate card covers the model, and also shows an API-equivalent USD estimate.
-- Local development data is disposable for now. Backwards compatibility for `.ai/private/` telemetry is intentionally not a goal during this phase.
+- Local development data is disposable for now. Backwards compatibility for `.eyes4ai/private/` telemetry is intentionally not a goal during this phase.
 
 ## Product Direction
 
@@ -133,7 +133,7 @@ The direction remains:
 
 The core artifact is not a workflow CLI. The core artifact is a repo-local standard:
 
-- `.ai/` for normalized AI activity data
+- `.eyes4ai/` for normalized AI activity data
 - Codex OpenTelemetry as the primary capture source
 - Git hooks for commit correlation
 

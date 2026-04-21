@@ -50,7 +50,7 @@ export function startServer(rootDir: string, port: number): http.Server {
 
       if (req.method === "GET" && req.url === "/health") {
         res.writeHead(200, { "content-type": "application/json" });
-        res.end(JSON.stringify({ ok: true, eventsPath: path.join(rootDir, ".ai", "private", "events") }));
+        res.end(JSON.stringify({ ok: true, eventsPath: path.join(rootDir, ".eyes4ai", "private", "events") }));
         return;
       }
 

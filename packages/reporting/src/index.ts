@@ -165,7 +165,7 @@ function toolInvocationSummary(events: EyesEvent[]): ToolInvocationSummary[] {
 }
 
 export async function loadEventsForRepo(repoPath: string): Promise<EyesEvent[]> {
-  const eventsDir = path.join(repoPath, ".ai", "private", "events");
+  const eventsDir = path.join(repoPath, ".eyes4ai", "private", "events");
   const files = (await readdir(eventsDir)).filter((name) => name.endsWith(".jsonl")).sort();
   const events: EyesEvent[] = [];
 

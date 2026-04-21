@@ -35,7 +35,7 @@ If the Codex desktop app is operating on a local project through the same truste
 
 The installer should:
 
-- create `.ai/`
+- create `.eyes4ai/`
 - create `.codex/config.toml` if missing, or patch it minimally if present with OTel settings
 - create `.githooks/`
 - configure `core.hooksPath` to `.githooks`
@@ -141,7 +141,7 @@ Git hooks should not try to discover prompt data. They should only:
 Proposed repo layout:
 
 ```text
-.ai/
+.eyes4ai/
   config.yaml
   prompt-log.jsonl
   private/
@@ -335,6 +335,6 @@ That means:
 
 These need your input before code implementation locks them in:
 
-- Should detailed `.ai/private/` data be committed, ignored, or configurable by default?
+- Should detailed `.eyes4ai/private/` data be committed, ignored, or configurable by default?
 - Should commit correlation live in files, commit trailers, Git notes, or a mix?
 - Should the installer be a shell script first, or do you want the project to start in a specific language runtime?

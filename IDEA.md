@@ -2,7 +2,7 @@
 
 A git recorded standard way of keeping track of AI usage.
 For example, I always add an AGENTS.md file in my project and in it there's a prompt that says after each iteration make sure to log the prompt in a file.
-This is very basic though. I envision something like a ".ai" folder which will contain not just prompts entered but also the token usage per prompt, latency, git commit hash if committed and other things that I can't think of now but maybe you can help me out.
+This is very basic though. I envision something like a ".eyes4ai" folder which will contain not just prompts entered but also the token usage per prompt, latency, git commit hash if committed and other things that I can't think of now but maybe you can help me out.
 
 # AI Response to the Idea
 
@@ -10,12 +10,12 @@ This is very basic though. I envision something like a ".ai" folder which will c
 
 The write path should be:
 
-> user works normally → agent hook records events → Git hook correlates them with commits → `.ai` gets updated silently
+> user works normally → agent hook records events → Git hook correlates them with commits → `.eyes4ai` gets updated silently
 
 So the architecture becomes:
 
 ```text
-AI agent hooks  --->  .ai/events/*.jsonl  --->  Git hooks  --->  commit/session manifest
+AI agent hooks  --->  .eyes4ai/events/*.jsonl  --->  Git hooks  --->  commit/session manifest
        |                                             |
        captures prompt/tool usage                    attaches repo/commit context
 ```
@@ -112,7 +112,7 @@ npx ai-ledger install
 does three things:
 
 ```text
-1. Creates .ai/
+1. Creates .eyes4ai/
 2. Adds repo-local Git hooks via core.hooksPath
 3. Installs agent-specific hook configs when it detects Codex, Claude Code, Cursor, etc.
 ```
@@ -120,7 +120,7 @@ does three things:
 Example structure:
 
 ```text
-.ai/
+.eyes4ai/
   config.yaml
   events/
     2026-04-21.jsonl
@@ -149,7 +149,7 @@ I would avoid doing heavy work in `pre-commit`. Developers already hate slow pre
 pre-commit:
   - snapshot current staged diff metadata
   - associate with active/recent AI sessions
-  - optionally stage .ai manifest if configured
+  - optionally stage .eyes4ai manifest if configured
 
 post-commit:
   - write final commit hash
@@ -171,11 +171,11 @@ The default personality of the tool should be:
 
 > “I observe. I do not interrupt.”
 
-## The hard problem: committing `.ai` metadata
+## The hard problem: committing `.eyes4ai` metadata
 
 There is a subtle Git problem here.
 
-If a `post-commit` hook writes `.ai/commits/abc123.json`, that file is **not inside the commit that was just created**. It becomes an unstaged change after the commit.
+If a `post-commit` hook writes `.eyes4ai/commits/abc123.json`, that file is **not inside the commit that was just created**. It becomes an unstaged change after the commit.
 
 That is annoying.
 
@@ -192,7 +192,7 @@ Store detailed activity locally, not committed:
 or:
 
 ```text
-.ai/private/
+.eyes4ai/private/
 ```
 
 Then only committed code changes go into Git. This is the lowest-friction default.
@@ -202,7 +202,7 @@ Then only committed code changes go into Git. This is the lowest-friction defaul
 The `pre-commit` hook writes a pending manifest before the commit is created:
 
 ```text
-.ai/commits/pending.json
+.eyes4ai/commits/pending.json
 ```
 
 Then stages it automatically.
@@ -245,17 +245,17 @@ local detailed ledger + optional commit trailer
 Team/compliance mode:
 
 ```text
-committed redacted .ai summaries
+committed redacted .eyes4ai summaries
 ```
 
-I would not force every repo to commit full `.ai` logs. That will scare people.
+I would not force every repo to commit full `.eyes4ai` logs. That will scare people.
 
 ## Better folder design
 
 I’d now change the earlier folder structure to this:
 
 ```text
-.ai/
+.eyes4ai/
   config.yaml
 
   public/
@@ -278,15 +278,15 @@ I’d now change the earlier folder structure to this:
 Then `.gitignore` defaults to:
 
 ```gitignore
-.ai/private/
-.ai/state/
+.eyes4ai/private/
+.eyes4ai/state/
 ```
 
 Committed by default:
 
 ```text
-.ai/config.yaml
-.ai/public/summaries/*.jsonl
+.eyes4ai/config.yaml
+.eyes4ai/public/summaries/*.jsonl
 ```
 
 Not committed:
@@ -331,7 +331,7 @@ The user never calls your tool manually.
 The real product probably needs adapters:
 
 ```text
-.ai/adapters/
+.eyes4ai/adapters/
   codex.json
   claude-code.json
   cursor.json
@@ -451,14 +451,14 @@ The “standard” is not a CLI.
 The standard is:
 
 ```text
-.ai/events/*.jsonl
-.ai/config.yaml
-.ai/public/summaries/*.jsonl
+.eyes4ai/events/*.jsonl
+.eyes4ai/config.yaml
+.eyes4ai/public/summaries/*.jsonl
 ```
 
 And a simple rule:
 
-> Any AI coding tool may write append-only events into `.ai/events/` using the standard schema.
+> Any AI coding tool may write append-only events into `.eyes4ai/events/` using the standard schema.
 
 That lets other tools participate without adopting your CLI.
 
@@ -467,7 +467,7 @@ So the write-path architecture becomes:
 ```text
 Native agent hook/plugin/extension
         ↓
-Append event to .ai event log
+Append event to .eyes4ai event log
         ↓
 Git hook correlates event log with commits
         ↓
