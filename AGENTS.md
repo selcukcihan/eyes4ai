@@ -72,6 +72,7 @@ These instructions apply to every task performed in this repository.
 - Maintain a fast feedback loop in our development cycle.
 - Act as autonomous as possible with minimal guidance from user by making use of all the skills available to you.
 - Long-running or batch-style scripts must emit progress logging so the user can see what the script is doing, how many items have been processed, how many remain, and overall progress.
+- During the current development phase, do not preserve backwards compatibility for local telemetry formats or dev-only data. If a schema or storage change is cleaner, prefer wiping and regenerating `.ai/private/` data over adding migration complexity.
 
 ## Technical Decisions
 - Before picking a certain solution like a framework, cloud provider or database etc. you must run it through me and we decide together.

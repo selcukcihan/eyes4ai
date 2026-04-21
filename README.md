@@ -61,6 +61,8 @@ If you collected events before a normalizer upgrade, reprocess them in place wit
 npm run dev -- reprocess .ai/private/events/$(date -u +%F).jsonl
 ```
 
+Because this project is still in active development and not yet customer-facing, the preferred approach is to wipe and regenerate local telemetry when a schema or normalization change makes that cleaner. Do not treat `.ai/private/` data as durable at this stage.
+
 ## Commands
 
 - `npm run dev -- serve 4318`
@@ -118,6 +120,7 @@ The current repo ignores the private event stream by default because raw AI tele
 - Transport-level events are intentionally noisy and are not yet collapsed into user-facing summaries.
 - Cost is an estimate, not invoice-equivalent billing.
 - Codex product usage and API-key usage do not map to the same unit. The report now shows Codex credits when the official Codex rate card covers the model, and also shows an API-equivalent USD estimate.
+- Local development data is disposable for now. Backwards compatibility for `.ai/private/` telemetry is intentionally not a goal during this phase.
 
 ## Product Direction
 
