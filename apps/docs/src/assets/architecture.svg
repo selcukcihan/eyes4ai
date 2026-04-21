@@ -1,0 +1,122 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 420" font-family="system-ui, -apple-system, sans-serif">
+  <defs>
+    <linearGradient id="bgGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#1e293b"/>
+    </linearGradient>
+    <linearGradient id="codexGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#22c55e"/>
+      <stop offset="100%" stop-color="#16a34a"/>
+    </linearGradient>
+    <linearGradient id="claudeGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#d97706"/>
+      <stop offset="100%" stop-color="#b45309"/>
+    </linearGradient>
+    <linearGradient id="serverGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#3b82f6"/>
+      <stop offset="100%" stop-color="#2563eb"/>
+    </linearGradient>
+    <linearGradient id="storageGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#8b5cf6"/>
+      <stop offset="100%" stop-color="#7c3aed"/>
+    </linearGradient>
+    <linearGradient id="reportGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ec4899"/>
+      <stop offset="100%" stop-color="#db2777"/>
+    </linearGradient>
+    <linearGradient id="gitGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f97316"/>
+      <stop offset="100%" stop-color="#ea580c"/>
+    </linearGradient>
+    <filter id="shadow">
+      <feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#000" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="900" height="420" rx="12" fill="url(#bgGrad)"/>
+
+  <!-- Title -->
+  <text x="450" y="36" text-anchor="middle" fill="#e2e8f0" font-size="18" font-weight="700">eyes4ai — How It Works</text>
+
+  <!-- AI Tools Column -->
+  <!-- Codex -->
+  <rect x="30" y="70" width="140" height="64" rx="10" fill="url(#codexGrad)" filter="url(#shadow)"/>
+  <text x="100" y="98" text-anchor="middle" fill="#fff" font-size="14" font-weight="600">OpenAI Codex</text>
+  <text x="100" y="118" text-anchor="middle" fill="#dcfce7" font-size="11">OTel logs</text>
+
+  <!-- Claude -->
+  <rect x="30" y="156" width="140" height="64" rx="10" fill="url(#claudeGrad)" filter="url(#shadow)"/>
+  <text x="100" y="184" text-anchor="middle" fill="#fff" font-size="14" font-weight="600">Claude Code</text>
+  <text x="100" y="204" text-anchor="middle" fill="#fef3c7" font-size="11">OTel logs</text>
+
+  <!-- Future tool -->
+  <rect x="30" y="242" width="140" height="64" rx="10" fill="#475569" filter="url(#shadow)" stroke="#64748b" stroke-width="1" stroke-dasharray="6,3"/>
+  <text x="100" y="270" text-anchor="middle" fill="#94a3b8" font-size="14" font-weight="600">Future Tool</text>
+  <text x="100" y="290" text-anchor="middle" fill="#64748b" font-size="11">plug &amp; play</text>
+
+  <!-- Git -->
+  <rect x="30" y="335" width="140" height="58" rx="10" fill="url(#gitGrad)" filter="url(#shadow)"/>
+  <text x="100" y="361" text-anchor="middle" fill="#fff" font-size="14" font-weight="600">Git Commits</text>
+  <text x="100" y="379" text-anchor="middle" fill="#ffedd5" font-size="11">post-commit hook</text>
+
+  <!-- Arrows: tools → server -->
+  <line x1="170" y1="102" x2="290" y2="190" stroke="#22c55e" stroke-width="2" marker-end="url(#arrowGreen)"/>
+  <line x1="170" y1="188" x2="290" y2="195" stroke="#d97706" stroke-width="2" marker-end="url(#arrowAmber)"/>
+  <line x1="170" y1="274" x2="290" y2="204" stroke="#64748b" stroke-width="2" stroke-dasharray="6,3"/>
+
+  <!-- Arrow: git → storage (bypasses server) -->
+  <path d="M 170 364 Q 380 370 530 270" stroke="#f97316" stroke-width="2" fill="none" marker-end="url(#arrowOrange)"/>
+  <text x="340" y="358" text-anchor="middle" fill="#fdba74" font-size="10">record-commit</text>
+
+  <!-- Server -->
+  <rect x="290" y="145" width="180" height="100" rx="12" fill="url(#serverGrad)" filter="url(#shadow)"/>
+  <text x="380" y="180" text-anchor="middle" fill="#fff" font-size="15" font-weight="700">eyes4ai server</text>
+  <text x="380" y="200" text-anchor="middle" fill="#bfdbfe" font-size="11">POST /v1/logs</text>
+  <text x="380" y="218" text-anchor="middle" fill="#bfdbfe" font-size="11">normalize &amp; dispatch</text>
+
+  <!-- Arrow: server → storage -->
+  <line x1="470" y1="195" x2="520" y2="225" stroke="#a78bfa" stroke-width="2" marker-end="url(#arrowPurple)"/>
+
+  <!-- Storage -->
+  <rect x="520" y="195" width="170" height="80" rx="12" fill="url(#storageGrad)" filter="url(#shadow)"/>
+  <text x="605" y="228" text-anchor="middle" fill="#fff" font-size="14" font-weight="600">.eyes4ai/events/</text>
+  <text x="605" y="250" text-anchor="middle" fill="#ddd6fe" font-size="11">YYYY-MM-DD.jsonl</text>
+  <text x="605" y="266" text-anchor="middle" fill="#c4b5fd" font-size="10">append-only, local</text>
+
+  <!-- Arrow: storage → report -->
+  <line x1="690" y1="235" x2="730" y2="195" stroke="#f472b6" stroke-width="2" marker-end="url(#arrowPink)"/>
+
+  <!-- Report -->
+  <rect x="730" y="120" width="145" height="100" rx="12" fill="url(#reportGrad)" filter="url(#shadow)"/>
+  <text x="803" y="155" text-anchor="middle" fill="#fff" font-size="15" font-weight="700">Report</text>
+  <text x="803" y="175" text-anchor="middle" fill="#fce7f3" font-size="11">sessions, cost, yield</text>
+  <text x="803" y="193" text-anchor="middle" fill="#fbcfe8" font-size="11">per-tool breakdown</text>
+  <text x="803" y="211" text-anchor="middle" fill="#f9a8d4" font-size="10">eyes4ai report</text>
+
+  <!-- Protocol labels -->
+  <rect x="210" y="120" width="70" height="20" rx="4" fill="#1e293b" stroke="#475569" stroke-width="1"/>
+  <text x="245" y="134" text-anchor="middle" fill="#94a3b8" font-size="10">OTLP/HTTP</text>
+
+  <!-- Arrowhead markers -->
+  <defs>
+    <marker id="arrowGreen" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#22c55e"/>
+    </marker>
+    <marker id="arrowAmber" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#d97706"/>
+    </marker>
+    <marker id="arrowPurple" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#a78bfa"/>
+    </marker>
+    <marker id="arrowPink" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#f472b6"/>
+    </marker>
+    <marker id="arrowOrange" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#f97316"/>
+    </marker>
+  </defs>
+
+  <!-- Footer -->
+  <text x="450" y="408" text-anchor="middle" fill="#475569" font-size="10">All data stays local. No cloud. No telemetry sent anywhere.</text>
+</svg>

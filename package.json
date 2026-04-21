@@ -1,20 +1,40 @@
 {
-  "name": "eyes4ai",
+  "name": "@eyes4ai/cli",
   "version": "0.1.0",
-  "private": true,
+  "description": "Passive AI activity recorder for Git repositories. Tracks usage across Codex, Claude Code, and more.",
   "type": "module",
-  "workspaces": [
-    "apps/*",
-    "packages/*"
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/selcukcihan/eyes4ai.git"
+  },
+  "keywords": [
+    "ai",
+    "codex",
+    "claude",
+    "opentelemetry",
+    "git",
+    "developer-tools",
+    "telemetry"
   ],
   "bin": {
     "eyes4ai": "./dist/apps/cli/src/cli.js"
   },
+  "files": [
+    "dist/"
+  ],
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "check": "tsc -p tsconfig.json --noEmit",
     "dev": "tsx apps/cli/src/cli.ts",
-    "start": "node dist/apps/cli/src/cli.js"
+    "start": "node dist/apps/cli/src/cli.js",
+    "test": "node --import tsx --test 'packages/*/test/**/*.test.ts'",
+    "test:coverage": "node --import tsx --test --experimental-test-coverage 'packages/*/test/**/*.test.ts'",
+    "prepublishOnly": "npm run build"
   },
   "devDependencies": {
     "@types/node": "^24.6.0",

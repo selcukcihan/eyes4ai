@@ -102,6 +102,7 @@ export interface EyesEvent {
     | "ai.transport"
     | "ai.tool_decision"
     | "git.commit"
+    | "raw"
     | "codex.raw";
   data: EyesEventData;
 }

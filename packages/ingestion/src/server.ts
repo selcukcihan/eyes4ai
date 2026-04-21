@@ -2,7 +2,7 @@ import http from "node:http";
 import path from "node:path";
 import { appendJsonLine, todayJsonlPath } from "./fs-utils.js";
 import { attributesToRecord } from "./otel.js";
-import { normalizeCodexLogRecord } from "./normalize.js";
+import { normalizeLogRecord } from "./normalize-dispatch.js";
 import type { OtlpLogsRequest } from "../../schema/src/index.js";
 
 async function readJsonBody(req: http.IncomingMessage): Promise<unknown> {
@@ -24,7 +24,7 @@ export async function handleOtlpLogs(rootDir: string, payload: OtlpLogsRequest):
     const resourceAttributes = attributesToRecord(resourceLog.resource?.attributes);
     for (const scopeLog of resourceLog.scopeLogs ?? []) {
       for (const logRecord of scopeLog.logRecords ?? []) {
-        const normalized = normalizeCodexLogRecord(logRecord, resourceAttributes);
+        const normalized = normalizeLogRecord(logRecord, resourceAttributes);
         if (!normalized) {
           continue;
         }

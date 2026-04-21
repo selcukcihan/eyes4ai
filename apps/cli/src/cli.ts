@@ -1,7 +1,7 @@
 import path from "node:path";
 import process from "node:process";
 import { readFile, writeFile } from "node:fs/promises";
-import { installCodexOtelConfig, installCodexOtelConfigGlobal, installGitHook, installGitHookGlobal, recordCommit, startServer, upgradeNormalizedEvent } from "../../../packages/ingestion/src/index.js";
+import { detectPlatform, installClaudeOtelConfig, installClaudeOtelConfigGlobal, installCodexOtelConfig, installCodexOtelConfigGlobal, installDaemon, installGitHook, installGitHookGlobal, recordCommit, startServer, uninstallDaemon, upgradeNormalizedEvent } from "../../../packages/ingestion/src/index.js";
 import { generateMvpReport, generateRepoReport, renderMvpReport, renderRepoReport } from "../../../packages/reporting/src/index.js";
 import type { EyesEvent } from "../../../packages/schema/src/index.js";
 
@@ -32,19 +32,49 @@ async function main(): Promise<void> {
     const endpoint = `http://127.0.0.1:${port}`;
 
     if (isGlobal) {
-      const configPath = await installCodexOtelConfigGlobal(endpoint);
-      process.stdout.write(`updated ${configPath}\n`);
+      const codexPath = await installCodexOtelConfigGlobal(endpoint);
+      process.stdout.write(`codex config: ${codexPath}\n`);
+      const claudePath = await installClaudeOtelConfigGlobal(endpoint);
+      process.stdout.write(`claude config: ${claudePath}\n`);
       const { hookPath } = await installGitHookGlobal();
-      process.stdout.write(`installed global post-commit hook: ${hookPath}\n`);
-      process.stdout.write(`set git config --global core.hooksPath\n`);
+      process.stdout.write(`git hook:     ${hookPath}\n`);
+
+      // Install daemon for auto-start on boot
+      const platform = detectPlatform();
+      if (platform !== "unsupported") {
+        try {
+          const daemon = await installDaemon(port);
+          process.stdout.write(`daemon:       ${daemon.configPath} (${daemon.platform})\n`);
+        } catch (err) {
+          const msg = err instanceof Error ? err.message : String(err);
+          process.stdout.write(`daemon:       failed (${msg})\n`);
+          process.stdout.write(`              start manually with: eyes4ai serve\n`);
+        }
+      } else {
+        process.stdout.write(`daemon:       unsupported platform, start manually with: eyes4ai serve\n`);
+      }
+
       process.stdout.write(`\nAll repos will now record AI-linked commits automatically.\n`);
-      process.stdout.write(`Existing repo-local .git/hooks/post-commit hooks are chained.\n`);
+      process.stdout.write(`The OTel server is running and will restart on boot.\n`);
     } else {
-      const configPath = await installCodexOtelConfig(rootDir, endpoint);
-      process.stdout.write(`updated ${configPath}\n`);
+      const codexPath = await installCodexOtelConfig(rootDir, endpoint);
+      process.stdout.write(`codex config: ${codexPath}\n`);
+      const claudePath = await installClaudeOtelConfig(rootDir, endpoint);
+      process.stdout.write(`claude config: ${claudePath}\n`);
       const hookPath = await installGitHook(rootDir);
-      process.stdout.write(`installed post-commit hook: ${hookPath}\n`);
+      process.stdout.write(`git hook:     ${hookPath}\n`);
     }
+    return;
+  }
+
+  if (command === "uninstall") {
+    const removed = await uninstallDaemon();
+    if (removed) {
+      process.stdout.write("stopped and removed eyes4ai daemon\n");
+    } else {
+      process.stdout.write("no daemon found to remove\n");
+    }
+    process.stdout.write("note: tool configs and git hooks are left in place. Remove manually if needed.\n");
     return;
   }
 
@@ -106,11 +136,12 @@ async function main(): Promise<void> {
   }
 
   process.stdout.write("usage:\n");
-  process.stdout.write("  eyes4ai serve [port]\n");
   process.stdout.write("  eyes4ai install [port] [--global]\n");
-  process.stdout.write("  eyes4ai reprocess [file]\n");
-  process.stdout.write("  eyes4ai record-commit [hash]\n");
+  process.stdout.write("  eyes4ai uninstall\n");
+  process.stdout.write("  eyes4ai serve [port]\n");
   process.stdout.write("  eyes4ai report [--days N] [--json]\n");
+  process.stdout.write("  eyes4ai record-commit [hash]\n");
+  process.stdout.write("  eyes4ai reprocess [file]\n");
   process.exitCode = 1;
 }
 

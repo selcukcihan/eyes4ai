@@ -1,108 +1,100 @@
 # eyes4ai
 
-`eyes4ai` records AI activity for a Git repository without changing the way you work. In the current prototype, it listens to Codex telemetry locally, turns that stream into one normalized event format, and writes append-only JSONL files under `.eyes4ai/`.
+Passive AI activity recorder for Git repositories. Tracks usage across OpenAI Codex, Claude Code, and more — all data stays local.
 
-## How It Works
+<p align="center">
+  <img src="apps/docs/src/assets/architecture.svg" alt="eyes4ai architecture" width="800">
+</p>
 
-1. Start the local receiver:
+## What it does
+
+eyes4ai sits in the background and records how AI coding tools are used in your repos:
+
+- **Sessions, turns, and token costs** — broken down per tool when you use multiple
+- **Git commit correlation** — which AI sessions led to actual commits
+- **Yield metrics** — session-to-commit rate, cost per commit, abandoned sessions
+- **Trend comparison** — current vs. previous period
+
+It uses OpenTelemetry to passively capture telemetry that Codex and Claude Code already emit. No code changes, no wrappers, no proxies.
+
+## Quick start
 
 ```bash
-npm run dev -- serve 4318
+# Install globally (configures Codex, Claude Code, git hooks, auto-start daemon)
+npx @eyes4ai/cli install 4318 --global
+
+# Or install for a single repo
+cd your-repo
+npx @eyes4ai/cli install 4318
+npx @eyes4ai/cli serve 4318
 ```
 
-2. Point Codex at it:
+That's it. Use your AI tools as usual. When you want a report:
 
 ```bash
-npm run dev -- install 4318
+npx @eyes4ai/cli report --days 7
 ```
 
-3. Keep using Codex normally.
+```
+AI activity
+  Sessions:              12  (codex: 8, claude: 4)
+  Turns:                 87  (codex: 55, claude: 32)
+  AI-active days:        5 / 7
+  Estimated cost:        $4.23  (codex: $2.80, claude: $1.43)
 
-4. `eyes4ai` receives the telemetry, normalizes it, and appends events to the local ledger:
+Committed output
+  AI-linked commits:     9
+  Lines changed:         +1,247 / -382
 
-```bash
-tail -f .eyes4ai/private/events/$(date -u +%F).jsonl
+Yield
+  Session-to-commit rate:  75%
+  Avg cost per commit:     $0.47
+  Abandoned sessions:      3
 ```
 
-If the schema or normalizer changes, the current prototype treats local telemetry as disposable. Reprocessing or wiping `.eyes4ai/private/` is preferred over carrying migration complexity.
+## How it works
 
-## What Data It Sources
+1. **Install** configures your AI tools to emit OpenTelemetry logs to a local endpoint
+2. **A lightweight server** receives OTLP/HTTP payloads, normalizes them, and appends to daily JSONL files
+3. **Git post-commit hooks** capture commit metadata and link commits to recent AI sessions
+4. **Reports** aggregate the local data into actionable metrics
 
-Current primary source:
+All data lives in `.eyes4ai/private/events/` — nothing leaves your machine.
 
-- Codex OpenTelemetry logs sent over local OTLP/HTTP to `http://127.0.0.1:4318/v1/logs`
+## Commands
 
-From that stream, `eyes4ai` currently derives or preserves:
+| Command | Description |
+|---------|-------------|
+| `install [port] [--global]` | Configure AI tools, git hooks, and (with --global) auto-start daemon |
+| `uninstall` | Remove the background daemon |
+| `serve [port]` | Start the OTel ingestion server |
+| `report [--days N] [--json]` | Generate an activity report |
+| `record-commit [hash]` | Manually record a commit |
+| `reprocess [file]` | Re-normalize events (after schema/pricing updates) |
 
-- prompt events
-- usage and token counts
-- tool execution metadata
-- session metadata
-- transport and request timing signals
-- estimated cost fields
-- fallback raw Codex events when a record is not normalized yet
+## Supported tools
 
-The project is currently Codex-first. It does not yet claim broad multi-agent coverage.
+| Tool | Status | Detection |
+|------|--------|-----------|
+| OpenAI Codex CLI | Supported | `codex.*` OTel events |
+| Claude Code | Supported | `claude_code.*` OTel events |
+| _Your tool here_ | [Add a provider](CONTRIBUTING.md#adding-a-new-ai-toolprovider) | Plug & play architecture |
 
-## How It Stores Data Locally
+## Privacy
 
-Local storage is repo-local and append-only:
+- All data is stored locally in `.eyes4ai/private/`
+- Raw prompts are never stored — only hashed fingerprints and short previews
+- Sensitive attributes (emails, account IDs) are redacted
+- No network calls except localhost OTel ingestion
 
-- `.eyes4ai/private/events/*.jsonl`
-  Normalized event stream
-- `.eyes4ai/prompt-log.jsonl`
-  Append-only log of prompts that changed tracked files
-- `.codex/config.toml`
-  Local Codex configuration that points telemetry at the receiver
+## Docs
 
-The normalized event schema is `eyes4ai.event.v1`. Each stored event uses this top-level shape:
+Full documentation: [selcukcihan.github.io/eyes4ai](https://selcukcihan.github.io/eyes4ai)
 
-```json
-{
-  "schema": "eyes4ai.event.v1",
-  "eventId": "uuid",
-  "timestamp": "2026-04-21T10:00:00.000Z",
-  "sessionId": "thread_123",
-  "source": {
-    "kind": "codex_otel_log",
-    "surface": "codex",
-    "event": "codex.sse_event"
-  },
-  "type": "ai.usage",
-  "data": {}
-}
-```
+## Contributing
 
-Required top-level fields:
+See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup, testing, and how to add new AI tool providers.
 
-- `schema`
-- `eventId`
-- `timestamp`
-- `sessionId`
-- `source.kind`
-- `source.event`
-- `type`
-- `data`
+## License
 
-Current normalized event types:
-
-- `ai.prompt`
-- `ai.usage`
-- `ai.tool_use.post`
-- `ai.session.start`
-- `ai.transport`
-- `ai.tool_decision`
-- `git.commit`
-- `codex.raw`
-
-The full schema reference lives in [docs/schema.md](docs/schema.md).
-
-## Quick Commands
-
-- `npm run dev -- serve 4318`
-- `npm run dev -- install 4318`
-- `npm run dev -- reprocess <file>`
-- `npm run dev -- report`
-- `npm run dev -- report --json`
-- `npm run check`
-- `npm run build`
+MIT

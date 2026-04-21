@@ -41,6 +41,12 @@ function filterByPeriod(events: EyesEvent[], startDate: Date, endDate: Date): Ey
 
 // ── Report data structures ────────────────────────────────────────────
 
+export interface ToolStats {
+  sessions: number;
+  turns: number;
+  estimatedCost: number;
+}
+
 export interface PeriodReport {
   periodLabel: string;
   startDate: string;
@@ -52,6 +58,9 @@ export interface PeriodReport {
   turns: number;
   activeDays: number;
   estimatedCost: number;
+
+  // Per-tool breakdown (keyed by source.surface, e.g. "codex", "claude")
+  byTool: Record<string, ToolStats>;
 
   // Committed output
   aiLinkedCommits: number;
@@ -74,6 +83,10 @@ export interface MvpReport {
 
 // ── Aggregation ───────────────────────────────────────────────────────
 
+function toolOf(event: EyesEvent): string {
+  return event.source.surface ?? "unknown";
+}
+
 function computePeriodReport(
   events: EyesEvent[],
   periodLabel: string,
@@ -86,9 +99,14 @@ function computePeriodReport(
   // Sessions: unique sessionIds from non-noise events
   const significantTypes = new Set(["ai.prompt", "ai.usage", "ai.tool_use.post", "ai.session.start", "ai.tool_decision"]);
   const sessionIds = new Set<string>();
+  // Track which tool each session belongs to (first surface seen wins)
+  const sessionTool = new Map<string, string>();
   for (const e of periodEvents) {
     if (significantTypes.has(e.type)) {
       sessionIds.add(e.sessionId);
+      if (!sessionTool.has(e.sessionId)) {
+        sessionTool.set(e.sessionId, toolOf(e));
+      }
     }
   }
   const sessions = sessionIds.size;
@@ -113,6 +131,38 @@ function computePeriodReport(
     if (typeof data.estimatedCostUsd === "number") {
       estimatedCost += data.estimatedCostUsd;
     }
+  }
+
+  // Per-tool breakdown
+  const toolSessions = new Map<string, Set<string>>();
+  const toolTurns = new Map<string, number>();
+  const toolCost = new Map<string, number>();
+
+  for (const e of periodEvents) {
+    const tool = toolOf(e);
+    if (significantTypes.has(e.type)) {
+      if (!toolSessions.has(tool)) toolSessions.set(tool, new Set());
+      toolSessions.get(tool)!.add(e.sessionId);
+    }
+    if (e.type === "ai.prompt") {
+      toolTurns.set(tool, (toolTurns.get(tool) ?? 0) + 1);
+    }
+    if (e.type === "ai.usage") {
+      const cost = (e.data as AiUsageData).estimatedCostUsd;
+      if (typeof cost === "number") {
+        toolCost.set(tool, (toolCost.get(tool) ?? 0) + cost);
+      }
+    }
+  }
+
+  const byTool: Record<string, ToolStats> = {};
+  const allTools = new Set([...toolSessions.keys(), ...toolTurns.keys(), ...toolCost.keys()]);
+  for (const tool of allTools) {
+    byTool[tool] = {
+      sessions: toolSessions.get(tool)?.size ?? 0,
+      turns: toolTurns.get(tool) ?? 0,
+      estimatedCost: Number((toolCost.get(tool) ?? 0).toFixed(2)),
+    };
   }
 
   // Git commits
@@ -152,6 +202,7 @@ function computePeriodReport(
     turns,
     activeDays,
     estimatedCost: Number(estimatedCost.toFixed(2)),
+    byTool,
     aiLinkedCommits,
     totalCommits,
     filesCommitted,
@@ -206,18 +257,32 @@ function pad(label: string, value: string, width: number = 28): string {
   return `  ${label.padEnd(width)}${value}`;
 }
 
+/**
+ * Format an inline per-tool breakdown, e.g. "(codex: 5, claude: 3)".
+ * Returns empty string if only one tool is present.
+ */
+function toolBreakdown(byTool: Record<string, ToolStats>, accessor: (s: ToolStats) => string): string {
+  const tools = Object.keys(byTool).sort();
+  if (tools.length <= 1) return "";
+  const parts = tools
+    .map((t) => `${t}: ${accessor(byTool[t]!)}`)
+    .join(", ");
+  return `  (${parts})`;
+}
+
 export function renderMvpReport(report: MvpReport): string {
   const { current: c, previous: p } = report;
   const lines: string[] = [];
+  const multi = Object.keys(c.byTool).length > 1;
 
   lines.push(`Period: ${c.periodLabel}`);
   lines.push("");
 
   lines.push("AI activity");
-  lines.push(pad("Sessions:", String(c.sessions)));
-  lines.push(pad("Turns:", String(c.turns)));
+  lines.push(pad("Sessions:", String(c.sessions) + toolBreakdown(c.byTool, (s) => String(s.sessions))));
+  lines.push(pad("Turns:", String(c.turns) + toolBreakdown(c.byTool, (s) => String(s.turns))));
   lines.push(pad("AI-active days:", `${c.activeDays} / ${c.days}`));
-  lines.push(pad("Estimated cost:", money(c.estimatedCost)));
+  lines.push(pad("Estimated cost:", money(c.estimatedCost) + toolBreakdown(c.byTool, (s) => money(s.estimatedCost))));
   lines.push("");
 
   lines.push("Committed output");

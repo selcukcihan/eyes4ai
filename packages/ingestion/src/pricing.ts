@@ -52,6 +52,49 @@ export const PRICING_TABLE: Record<string, PricingEntry> = {
     outputPerMillionCredits: 350,
     source: "https://developers.openai.com/codex/pricing",
     toolFeesExcluded: true
+  },
+
+  // Anthropic Claude models
+  "claude-opus-4-6": {
+    model: "claude-opus-4-6",
+    inputPerMillionUsd: 15,
+    cachedInputPerMillionUsd: 1.5,
+    outputPerMillionUsd: 75,
+    source: "https://docs.anthropic.com/en/docs/about-claude/models",
+    toolFeesExcluded: false
+  },
+  "claude-sonnet-4-6": {
+    model: "claude-sonnet-4-6",
+    inputPerMillionUsd: 3,
+    cachedInputPerMillionUsd: 0.3,
+    outputPerMillionUsd: 15,
+    source: "https://docs.anthropic.com/en/docs/about-claude/models",
+    toolFeesExcluded: false
+  },
+  "claude-haiku-4-5-20251001": {
+    model: "claude-haiku-4-5-20251001",
+    inputPerMillionUsd: 0.8,
+    cachedInputPerMillionUsd: 0.08,
+    outputPerMillionUsd: 4,
+    source: "https://docs.anthropic.com/en/docs/about-claude/models",
+    toolFeesExcluded: false
+  },
+  // Common aliases
+  "claude-opus-4-1": {
+    model: "claude-opus-4-1",
+    inputPerMillionUsd: 15,
+    cachedInputPerMillionUsd: 1.5,
+    outputPerMillionUsd: 75,
+    source: "https://docs.anthropic.com/en/docs/about-claude/models",
+    toolFeesExcluded: false
+  },
+  "claude-sonnet-4-5-20250514": {
+    model: "claude-sonnet-4-5-20250514",
+    inputPerMillionUsd: 3,
+    cachedInputPerMillionUsd: 0.3,
+    outputPerMillionUsd: 15,
+    source: "https://docs.anthropic.com/en/docs/about-claude/models",
+    toolFeesExcluded: false
   }
 };
 
