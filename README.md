@@ -139,5 +139,5 @@ The core artifact is not a workflow CLI. The core artifact is a repo-local stand
 
 ## Additional Docs
 
-- [Codex MVP](/Users/selcukcihan/code/eyes-for-ai/docs/codex-mvp.md)
-- [Event Schema](/Users/selcukcihan/code/eyes-for-ai/docs/schema.md)
+- [Codex MVP](/Users/selcukcihan/code/eyes4ai/docs/codex-mvp.md)
+- [Event Schema](/Users/selcukcihan/code/eyes4ai/docs/schema.md)

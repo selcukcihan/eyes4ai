@@ -8,3 +8,4 @@
 {"timestamp":"2026-04-21T11:20:00Z","prompt":"The cost calculation can use openai's pricing page data https://developers.openai.com/codex/pricing and if you need to check what tokens are and how to calculate it https://help.openai.com/en/articles/4936856-what-are-tokens-and-how-to-count-them"}
 {"timestamp":"2026-04-21T11:31:00Z","prompt":"Since we are still in development and have no customers except myself we don't need backwards compatibility. That is, do not worry about already generated data. Just wipe it and start afresh if needed."}
 {"timestamp":"2026-04-21T11:38:00Z","prompt":"Let's rename the tool to eyes4ai, both the project as well as the cli."}
+{"timestamp":"2026-04-21T11:47:00Z","prompt":"Let's rename the directory as well"}
