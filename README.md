@@ -2,47 +2,57 @@
 
 `eyes-for-ai` is a minimal-friction AI activity ledger for Git repositories.
 
-The product direction is:
+The current prototype focuses on Codex. It collects Codex OpenTelemetry locally, normalizes the event stream, and writes append-only JSONL files under `.ai/private/events/`.
 
-- Install once.
-- Keep using your AI tool normally.
-- Record append-only AI activity with repo context.
-- Stay passive by default.
+## What It Does Today
 
-## What We Are Building
+- receives Codex OTLP/HTTP JSON logs locally
+- normalizes Codex events into `eyes-for-ai.event.v1`
+- estimates token-based cost from model pricing data
+- keeps raw/private AI telemetry out of git by default
+- gives you a local dogfooding loop to inspect real AI activity
 
-The core artifact is not a CLI workflow. The core artifact is a repo-local standard:
+What it does not do yet:
 
-- `.ai/` for normalized AI activity data
-- Codex OpenTelemetry as the primary capture source
-- Git hooks for commit correlation
+- polished reports or dashboards
+- commit correlation presentation
+- public/team summaries
+- multi-agent support beyond Codex
 
-The CLI should exist only as an installer, validator, and debugging surface.
+## Recommended Usage
 
-## MVP
+For the current prototype, the recommended path is:
 
-The MVP starts with Codex only.
+1. Install dependencies:
 
-Why Codex first:
+```bash
+npm install
+npm run build
+```
 
-- Codex already has an OpenTelemetry layer in the open-source codebase.
-- Codex telemetry already emits session events, tool results, token counts, and timing data.
-- Codex already supports repo-local `.codex/config.toml`.
-- Current OpenAI Codex docs indicate the CLI and IDE extension share the same configuration layers, which makes a single repo-local integration path viable for Codex surfaces.
+2. Start the local receiver in one terminal:
 
-The first version should work for:
+```bash
+npm run dev -- serve 4318
+```
 
-- Codex CLI
-- Codex desktop app / IDE-backed local Codex workflows that honor the same repo-scoped `.codex/` config
+3. Install Codex OTel config:
 
-## Dogfood Loop
+For Codex CLI in this repo:
 
-The first local loop is:
+```bash
+npm run dev -- install 4318
+```
 
-1. Start the local receiver with `npm run dev -- serve 4318`
-2. Install repo-local Codex config with `npm run dev -- install 4318`
-3. Use Codex normally in this repo
-4. Inspect normalized events under `.ai/private/events/*.jsonl`
+For Codex Desktop, the more reliable current setup is to place the same OTel block in `~/.codex/config.toml` and restart the app fully.
+
+4. Use Codex normally.
+
+5. Inspect the resulting event file:
+
+```bash
+tail -f .ai/private/events/$(date -u +%F).jsonl
+```
 
 If you collected events before a normalizer upgrade, reprocess them in place with:
 
@@ -50,33 +60,64 @@ If you collected events before a normalizer upgrade, reprocess them in place wit
 npm run dev -- reprocess .ai/private/events/$(date -u +%F).jsonl
 ```
 
-The current implementation focuses on OTLP/HTTP JSON log ingestion first. That is enough to prove the normalization path, token capture, and token-based cost estimation.
+## Commands
 
-## Product Principles
+- `npm run dev -- serve 4318`
+  Starts the local OTLP/HTTP JSON receiver.
+- `npm run dev -- install 4318`
+  Writes repo-local Codex config that points to the local receiver.
+- `npm run dev -- reprocess <file>`
+  Re-runs the latest normalizer against an existing JSONL file.
+- `npm run check`
+  Type-checks the project.
+- `npm run build`
+  Builds the CLI into `dist/`.
 
-- Passive by default, not blocking
-- Privacy-preserving by default
-- Append-only logs
-- Git-friendly outputs
-- Repo-local installation
-- Minimal user ceremony
+## Data Layout
 
-## Non-Goals For The First Cut
+Current local files:
 
-- Multi-agent vendor support beyond Codex
-- SaaS backend
-- Dashboard-heavy reporting
-- Mandatory committed raw prompts
-- Policy enforcement that blocks normal coding flows
+- `.ai/private/events/*.jsonl`
+  Local normalized event stream.
+- `.ai/prompt-log.jsonl`
+  Append-only repo log of prompts that changed tracked files.
+- `.codex/config.toml`
+  Repo-local Codex OTel config used for dogfooding.
 
-## First Implementation Slice
+## Git Policy
 
-1. Install repo-local Codex config for OTel export.
-2. Enable and route Codex OTel logs/traces/metrics into our local collector or adapter.
-3. Normalize OTel events into `.ai/private/events/*.jsonl`.
-4. Correlate recent AI sessions to Git commits through repo-local Git hooks.
-5. Estimate token-based cost from model pricing tables and emitted token counts.
-6. Emit a small public or local-only summary view for debugging.
+Recommended default:
 
-See [docs/codex-mvp.md](/Users/selcukcihan/code/eyes-for-ai/docs/codex-mvp.md) for the concrete MVP shape.
-See [docs/schema.md](/Users/selcukcihan/code/eyes-for-ai/docs/schema.md) for the first normalized event contract.
+- do not commit `.ai/private/`
+- do not commit `.ai/state/`
+- do not commit raw event logs
+- only commit stable config or curated summaries later if explicitly desired
+
+The current repo ignores the private event stream by default because raw AI telemetry is noisy and may contain sensitive metadata.
+
+## Current Limitations
+
+- Codex Desktop currently appears to honor global `~/.codex/config.toml` more reliably than repo-local `.codex/config.toml` for OTel settings.
+- The normalizer is improving, but some Codex events still fall through as `codex.raw`.
+- Transport-level events are intentionally noisy and are not yet collapsed into user-facing summaries.
+- Cost is an estimate, not invoice-equivalent billing.
+
+## Product Direction
+
+The direction remains:
+
+- install once
+- keep using your AI tool normally
+- record append-only AI activity with repo context
+- stay passive by default
+
+The core artifact is not a workflow CLI. The core artifact is a repo-local standard:
+
+- `.ai/` for normalized AI activity data
+- Codex OpenTelemetry as the primary capture source
+- Git hooks for commit correlation
+
+## Additional Docs
+
+- [Codex MVP](/Users/selcukcihan/code/eyes-for-ai/docs/codex-mvp.md)
+- [Event Schema](/Users/selcukcihan/code/eyes-for-ai/docs/schema.md)

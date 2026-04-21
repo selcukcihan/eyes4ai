@@ -34,6 +34,8 @@ These instructions apply to every task performed in this repository.
 - Be concise and direct.
 - Summarize what changed, how it was verified, and any remaining risk.
 - Prefer actionable next steps over long explanations.
+- Keep the top-level `README.md` customer-facing and up to date with actual product behavior, recommended usage, limitations, and current workflow.
+- When recurring implementation patterns become stable in this repo, document them here in `AGENTS.md` so they become persistent repo guidance.
 
 ## Updating These Rules
 - If the user asks to change repository-wide behavior, update this file.
@@ -99,4 +101,3 @@ Do not ask me for permission to do straightforward engineering work.
 You may modify app code, tests, config, migrations, and docs in this repo.
 You may install/update normal dependencies if needed.
 Prefer the most complete implementation over a partial scaffold.
-
