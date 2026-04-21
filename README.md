@@ -1,0 +1,62 @@
+# eyes-for-ai
+
+`eyes-for-ai` is a minimal-friction AI activity ledger for Git repositories.
+
+The product direction is:
+
+- Install once.
+- Keep using your AI tool normally.
+- Record append-only AI activity with repo context.
+- Stay passive by default.
+
+## What We Are Building
+
+The core artifact is not a CLI workflow. The core artifact is a repo-local standard:
+
+- `.ai/` for normalized AI activity data
+- repo-local agent hooks for capture
+- Git hooks for commit correlation
+
+The CLI should exist only as an installer, validator, and debugging surface.
+
+## MVP
+
+The MVP starts with Codex only.
+
+Why Codex first:
+
+- Codex already supports repo-local `.codex/hooks.json`.
+- Codex already supports repo-local `.codex/config.toml`.
+- Current OpenAI Codex docs indicate the CLI and IDE extension share the same configuration layers, which makes a single repo-local integration path viable for Codex surfaces.
+
+The first version should work for:
+
+- Codex CLI
+- Codex desktop app / IDE-backed local Codex workflows that honor the same repo-scoped `.codex/` config
+
+## Product Principles
+
+- Passive by default, not blocking
+- Privacy-preserving by default
+- Append-only logs
+- Git-friendly outputs
+- Repo-local installation
+- Minimal user ceremony
+
+## Non-Goals For The First Cut
+
+- Multi-agent vendor support beyond Codex
+- SaaS backend
+- Dashboard-heavy reporting
+- Mandatory committed raw prompts
+- Policy enforcement that blocks normal coding flows
+
+## First Implementation Slice
+
+1. Install repo-local Codex hooks.
+2. Capture normalized append-only events into `.ai/private/events/*.jsonl`.
+3. Track active and recent sessions in `.ai/state/`.
+4. Correlate recent AI sessions to Git commits through repo-local Git hooks.
+5. Emit a small public or local-only summary view for debugging.
+
+See [docs/codex-mvp.md](/Users/selcukcihan/code/eyes-for-ai/docs/codex-mvp.md) for the concrete MVP shape.
