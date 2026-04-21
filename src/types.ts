@@ -42,7 +42,41 @@ export interface GitCommitData {
   relatedAiSessions: string[];
 }
 
-export type EyesEventData = PromptData | AiUsageData | ToolUseData | GitCommitData | Record<string, unknown>;
+export interface SessionStartData {
+  model?: string;
+  providerName?: string;
+  reasoningEffort?: string;
+  reasoningSummary?: string;
+  approvalPolicy?: string;
+  sandboxPolicy?: string;
+  mcpServers?: string[];
+}
+
+export interface TransportEventData {
+  category: "websocket_connect" | "websocket_request" | "websocket_event";
+  eventKind?: string;
+  durationMs?: number;
+  success?: boolean;
+  connectionReused?: boolean;
+  endpoint?: string;
+}
+
+export interface ToolDecisionData {
+  toolName?: string;
+  toolUseId?: string;
+  decision?: string;
+  decisionSource?: string;
+}
+
+export type EyesEventData =
+  | PromptData
+  | AiUsageData
+  | ToolUseData
+  | GitCommitData
+  | SessionStartData
+  | TransportEventData
+  | ToolDecisionData
+  | Record<string, unknown>;
 
 export interface EyesEvent {
   schema: "eyes-for-ai.event.v1";
@@ -54,7 +88,15 @@ export interface EyesEvent {
     surface?: string;
     event: string;
   };
-  type: "ai.prompt" | "ai.usage" | "ai.tool_use.post" | "git.commit" | "codex.raw";
+  type:
+    | "ai.prompt"
+    | "ai.usage"
+    | "ai.tool_use.post"
+    | "ai.session.start"
+    | "ai.transport"
+    | "ai.tool_decision"
+    | "git.commit"
+    | "codex.raw";
   data: EyesEventData;
 }
 

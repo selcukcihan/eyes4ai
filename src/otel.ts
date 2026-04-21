@@ -1,12 +1,28 @@
 import crypto from "node:crypto";
 import type { OtlpAnyValue, OtlpKeyValue, OtlpLogRecord } from "./types.js";
 
+export function coerceStringPrimitive(input: string): string | number | boolean {
+  if (input === "true") {
+    return true;
+  }
+  if (input === "false") {
+    return false;
+  }
+  if (/^-?\d+$/.test(input)) {
+    return Number(input);
+  }
+  if (/^-?\d+\.\d+$/.test(input)) {
+    return Number(input);
+  }
+  return input;
+}
+
 export function anyValueToPrimitive(value: OtlpAnyValue | undefined): unknown {
   if (!value) {
     return undefined;
   }
   if (value.stringValue !== undefined) {
-    return value.stringValue;
+    return coerceStringPrimitive(value.stringValue);
   }
   if (value.intValue !== undefined) {
     return Number(value.intValue);
@@ -33,15 +49,37 @@ export function attributesToRecord(attributes: OtlpKeyValue[] | undefined): Reco
   return Object.fromEntries(entries);
 }
 
+export function coerceRecordPrimitives(record: Record<string, unknown>): Record<string, unknown> {
+  return Object.fromEntries(
+    Object.entries(record).map(([key, value]) => {
+      if (typeof value === "string") {
+        return [key, coerceStringPrimitive(value)];
+      }
+      return [key, value];
+    })
+  );
+}
+
 export function logRecordTimestamp(record: OtlpLogRecord): string {
   const raw = record.timeUnixNano ?? record.observedTimeUnixNano;
-  if (!raw) {
-    return new Date().toISOString();
+  if (raw) {
+    const nanos = BigInt(raw);
+    if (nanos > 0n) {
+      const millis = Number(nanos / 1_000_000n);
+      const iso = new Date(millis).toISOString();
+      if (!iso.startsWith("1970-01-01")) {
+        return iso;
+      }
+    }
   }
 
-  const nanos = BigInt(raw);
-  const millis = Number(nanos / 1_000_000n);
-  return new Date(millis).toISOString();
+  const attributes = attributesToRecord(record.attributes);
+  const eventTimestamp = attributes["event.timestamp"];
+  if (typeof eventTimestamp === "string") {
+    return eventTimestamp;
+  }
+
+  return new Date().toISOString();
 }
 
 export function sha256(input: string): string {

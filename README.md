@@ -44,6 +44,12 @@ The first local loop is:
 3. Use Codex normally in this repo
 4. Inspect normalized events under `.ai/private/events/*.jsonl`
 
+If you collected events before a normalizer upgrade, reprocess them in place with:
+
+```bash
+npm run dev -- reprocess .ai/private/events/$(date -u +%F).jsonl
+```
+
 The current implementation focuses on OTLP/HTTP JSON log ingestion first. That is enough to prove the normalization path, token capture, and token-based cost estimation.
 
 ## Product Principles

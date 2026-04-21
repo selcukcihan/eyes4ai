@@ -2,7 +2,7 @@
 [otel]
 environment = "dev"
 log_user_prompt = false
-exporter = { otlp-http = { endpoint = "http://127.0.0.1:4319/v1/logs", protocol = "json" } }
+exporter = { otlp-http = { endpoint = "http://127.0.0.1:4318/v1/logs", protocol = "json" } }
 trace_exporter = "none"
 metrics_exporter = "none"
 

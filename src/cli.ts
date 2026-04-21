@@ -1,7 +1,10 @@
 import path from "node:path";
 import process from "node:process";
+import { readFile, writeFile } from "node:fs/promises";
 import { startServer } from "./server.js";
 import { installCodexOtelConfig } from "./install.js";
+import { upgradeNormalizedEvent } from "./normalize.js";
+import type { EyesEvent } from "./types.js";
 
 function rootDirFromCwd(): string {
   return process.cwd();
@@ -33,9 +36,23 @@ async function main(): Promise<void> {
     return;
   }
 
+  if (command === "reprocess") {
+    const target = rest[0] ?? path.join(rootDir, ".ai", "private", "events", `${new Date().toISOString().slice(0, 10)}.jsonl`);
+    const content = await readFile(target, "utf8");
+    const upgraded = content
+      .split("\n")
+      .filter((line) => line.trim().length > 0)
+      .map((line) => JSON.parse(line) as EyesEvent)
+      .map((event) => upgradeNormalizedEvent(event));
+    await writeFile(target, `${upgraded.map((event) => JSON.stringify(event)).join("\n")}\n`, "utf8");
+    process.stdout.write(`reprocessed ${target} (${upgraded.length} events)\n`);
+    return;
+  }
+
   process.stdout.write("usage:\n");
   process.stdout.write("  eyes-for-ai serve [port]\n");
   process.stdout.write("  eyes-for-ai install [port]\n");
+  process.stdout.write("  eyes-for-ai reprocess [file]\n");
   process.exitCode = 1;
 }
 
