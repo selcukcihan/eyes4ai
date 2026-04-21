@@ -1,5 +1,5 @@
 {
-  "name": "eyes-for-ai",
+  "name": "eyes4ai",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -8,7 +8,7 @@
     "packages/*"
   ],
   "bin": {
-    "eyes-for-ai": "./dist/apps/cli/src/cli.js"
+    "eyes4ai": "./dist/apps/cli/src/cli.js"
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",

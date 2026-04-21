@@ -83,7 +83,7 @@ export type EyesEventData =
   | Record<string, unknown>;
 
 export interface EyesEvent {
-  schema: "eyes-for-ai.event.v1";
+  schema: "eyes4ai.event.v1";
   eventId: string;
   timestamp: string;
   sessionId: string;

@@ -1,12 +1,12 @@
 # Event Schema
 
-`eyes-for-ai.event.v1` is the normalized append-only event format written to `.ai/private/events/*.jsonl`.
+`eyes4ai.event.v1` is the normalized append-only event format written to `.ai/private/events/*.jsonl`.
 
 ## Top-Level Shape
 
 ```json
 {
-  "schema": "eyes-for-ai.event.v1",
+  "schema": "eyes4ai.event.v1",
   "eventId": "uuid",
   "timestamp": "2026-04-21T10:00:00.000Z",
   "sessionId": "thread_123",

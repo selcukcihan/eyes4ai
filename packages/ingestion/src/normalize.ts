@@ -59,7 +59,7 @@ function normalizeFromParts(
 
   if (!eventName) {
     return {
-      schema: "eyes-for-ai.event.v1",
+      schema: "eyes4ai.event.v1",
       eventId: makeEventId(),
       timestamp,
       sessionId,
@@ -80,7 +80,7 @@ function normalizeFromParts(
   if (eventName === "codex.user_prompt") {
     const prompt = typeof attributes.prompt === "string" ? attributes.prompt : "";
     return {
-      schema: "eyes-for-ai.event.v1",
+      schema: "eyes4ai.event.v1",
       eventId: makeEventId(),
       timestamp,
       sessionId,
@@ -101,7 +101,7 @@ function normalizeFromParts(
 
   if (eventName === "codex.tool_result") {
     return {
-      schema: "eyes-for-ai.event.v1",
+      schema: "eyes4ai.event.v1",
       eventId: makeEventId(),
       timestamp,
       sessionId,
@@ -125,7 +125,7 @@ function normalizeFromParts(
 
   if (eventName === "codex.tool_decision") {
     return {
-      schema: "eyes-for-ai.event.v1",
+      schema: "eyes4ai.event.v1",
       eventId: makeEventId(),
       timestamp,
       sessionId,
@@ -151,7 +151,7 @@ function normalizeFromParts(
       .filter((item) => item.length > 0);
 
     return {
-      schema: "eyes-for-ai.event.v1",
+      schema: "eyes4ai.event.v1",
       eventId: makeEventId(),
       timestamp,
       sessionId,
@@ -182,7 +182,7 @@ function normalizeFromParts(
           : "websocket_event";
 
     return {
-      schema: "eyes-for-ai.event.v1",
+      schema: "eyes4ai.event.v1",
       eventId: makeEventId(),
       timestamp,
       sessionId,
@@ -219,7 +219,7 @@ function normalizeFromParts(
       : { costBasis: "unknown" as const };
 
     return {
-      schema: "eyes-for-ai.event.v1",
+      schema: "eyes4ai.event.v1",
       eventId: makeEventId(),
       timestamp,
       sessionId,
@@ -244,7 +244,7 @@ function normalizeFromParts(
   }
 
   return {
-    schema: "eyes-for-ai.event.v1",
+    schema: "eyes4ai.event.v1",
     eventId: makeEventId(),
     timestamp,
     sessionId,

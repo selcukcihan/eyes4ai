@@ -168,7 +168,7 @@ Example prompt event:
 
 ```json
 {
-  "schema": "eyes-for-ai.event.v1",
+  "schema": "eyes4ai.event.v1",
   "event_id": "evt_01",
   "timestamp": "2026-04-21T09:19:55Z",
   "session_id": "sess_01",
@@ -194,7 +194,7 @@ Example tool event:
 
 ```json
 {
-  "schema": "eyes-for-ai.event.v1",
+  "schema": "eyes4ai.event.v1",
   "event_id": "evt_01b",
   "timestamp": "2026-04-21T09:21:02Z",
   "session_id": "sess_01",
@@ -219,7 +219,7 @@ Example token accounting event:
 
 ```json
 {
-  "schema": "eyes-for-ai.event.v1",
+  "schema": "eyes4ai.event.v1",
   "event_id": "evt_01c",
   "timestamp": "2026-04-21T09:22:00Z",
   "session_id": "sess_01",
@@ -246,7 +246,7 @@ Example commit correlation event:
 
 ```json
 {
-  "schema": "eyes-for-ai.event.v1",
+  "schema": "eyes4ai.event.v1",
   "event_id": "evt_02",
   "timestamp": "2026-04-21T09:30:00Z",
   "source": {
@@ -325,7 +325,7 @@ The next implementation should be an OTel adapter, not a hook parser.
 That means:
 
 1. define a local OTel ingestion path for Codex
-2. map Codex OTel events into `eyes-for-ai.event.v1`
+2. map Codex OTel events into `eyes4ai.event.v1`
 3. maintain a model pricing table keyed by model slug and date
 4. compute `estimated_cost_usd` from token counts
 5. use Git hooks only for commit correlation

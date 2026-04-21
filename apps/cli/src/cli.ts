@@ -17,7 +17,7 @@ async function main(): Promise<void> {
     const portArg = rest[0];
     const port = portArg ? Number(portArg) : 4318;
     const server = startServer(rootDir, port);
-    process.stdout.write(`eyes-for-ai server listening on http://127.0.0.1:${port}\n`);
+    process.stdout.write(`eyes4ai server listening on http://127.0.0.1:${port}\n`);
     process.stdout.write(`writing events to ${path.join(rootDir, ".ai", "private", "events")}\n`);
     process.on("SIGINT", () => {
       server.close(() => process.exit(0));
@@ -59,10 +59,10 @@ async function main(): Promise<void> {
   }
 
   process.stdout.write("usage:\n");
-  process.stdout.write("  eyes-for-ai serve [port]\n");
-  process.stdout.write("  eyes-for-ai install [port]\n");
-  process.stdout.write("  eyes-for-ai reprocess [file]\n");
-  process.stdout.write("  eyes-for-ai report [--json]\n");
+  process.stdout.write("  eyes4ai serve [port]\n");
+  process.stdout.write("  eyes4ai install [port]\n");
+  process.stdout.write("  eyes4ai reprocess [file]\n");
+  process.stdout.write("  eyes4ai report [--json]\n");
   process.exitCode = 1;
 }
 

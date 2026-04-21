@@ -1,13 +1,13 @@
-# eyes-for-ai
+# eyes4ai
 
-`eyes-for-ai` is a minimal-friction AI activity ledger for Git repositories.
+`eyes4ai` is a minimal-friction AI activity ledger for Git repositories.
 
 The current prototype focuses on Codex. It collects Codex OpenTelemetry locally, normalizes the event stream, and writes append-only JSONL files under `.ai/private/events/`.
 
 ## What It Does Today
 
 - receives Codex OTLP/HTTP JSON logs locally
-- normalizes Codex events into `eyes-for-ai.event.v1`
+- normalizes Codex events into `eyes4ai.event.v1`
 - estimates Codex credit usage from the official Codex pricing page
 - estimates API-equivalent USD cost from model token pricing
 - keeps raw/private AI telemetry out of git by default
