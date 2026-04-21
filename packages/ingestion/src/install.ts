@@ -1,5 +1,6 @@
 import { writeFile, access, readFile } from "node:fs/promises";
 import path from "node:path";
+import os from "node:os";
 import { ensureDir } from "./fs-utils.js";
 
 const BEGIN_MARKER = "# eyes4ai:begin";
@@ -37,11 +38,7 @@ function upsertManagedBlock(current: string, block: string): string {
   return current.trim().length > 0 ? `${current.trimEnd()}\n\n${block}\n` : `${block}\n`;
 }
 
-export async function installCodexOtelConfig(rootDir: string, endpoint: string): Promise<string> {
-  const codexDir = path.join(rootDir, ".codex");
-  await ensureDir(codexDir);
-
-  const configPath = path.join(codexDir, "config.toml");
+async function upsertConfigFile(configPath: string, endpoint: string): Promise<void> {
   let alreadyExists = false;
   try {
     await access(configPath);
@@ -53,9 +50,25 @@ export async function installCodexOtelConfig(rootDir: string, endpoint: string):
   if (alreadyExists) {
     const current = await readFile(configPath, "utf8");
     await writeFile(configPath, upsertManagedBlock(current, codexConfig(endpoint)), "utf8");
-    return configPath;
+  } else {
+    await writeFile(configPath, codexConfig(endpoint), "utf8");
   }
+}
 
-  await writeFile(configPath, codexConfig(endpoint), "utf8");
+/** Install Codex OTel config into the repo-local .codex/config.toml. */
+export async function installCodexOtelConfig(rootDir: string, endpoint: string): Promise<string> {
+  const codexDir = path.join(rootDir, ".codex");
+  await ensureDir(codexDir);
+  const configPath = path.join(codexDir, "config.toml");
+  await upsertConfigFile(configPath, endpoint);
+  return configPath;
+}
+
+/** Install Codex OTel config into the global ~/.codex/config.toml. */
+export async function installCodexOtelConfigGlobal(endpoint: string): Promise<string> {
+  const codexDir = path.join(os.homedir(), ".codex");
+  await ensureDir(codexDir);
+  const configPath = path.join(codexDir, "config.toml");
+  await upsertConfigFile(configPath, endpoint);
   return configPath;
 }

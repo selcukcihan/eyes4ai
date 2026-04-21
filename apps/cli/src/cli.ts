@@ -1,7 +1,7 @@
 import path from "node:path";
 import process from "node:process";
 import { readFile, writeFile } from "node:fs/promises";
-import { installCodexOtelConfig, installGitHook, recordCommit, startServer, upgradeNormalizedEvent } from "../../../packages/ingestion/src/index.js";
+import { installCodexOtelConfig, installCodexOtelConfigGlobal, installGitHook, installGitHookGlobal, recordCommit, startServer, upgradeNormalizedEvent } from "../../../packages/ingestion/src/index.js";
 import { generateMvpReport, generateRepoReport, renderMvpReport, renderRepoReport } from "../../../packages/reporting/src/index.js";
 import type { EyesEvent } from "../../../packages/schema/src/index.js";
 
@@ -26,14 +26,25 @@ async function main(): Promise<void> {
   }
 
   if (command === "install") {
-    const portArg = rest[0];
+    const isGlobal = rest.includes("--global");
+    const portArg = rest.find((a) => a !== "--global");
     const port = portArg ? Number(portArg) : 4318;
     const endpoint = `http://127.0.0.1:${port}`;
-    const configPath = await installCodexOtelConfig(rootDir, endpoint);
-    process.stdout.write(`updated ${configPath}\n`);
-    process.stdout.write(`configure Codex to export OTLP/HTTP JSON logs to ${endpoint}/v1/logs\n`);
-    const hookPath = await installGitHook(rootDir);
-    process.stdout.write(`installed post-commit hook: ${hookPath}\n`);
+
+    if (isGlobal) {
+      const configPath = await installCodexOtelConfigGlobal(endpoint);
+      process.stdout.write(`updated ${configPath}\n`);
+      const { hookPath } = await installGitHookGlobal();
+      process.stdout.write(`installed global post-commit hook: ${hookPath}\n`);
+      process.stdout.write(`set git config --global core.hooksPath\n`);
+      process.stdout.write(`\nAll repos will now record AI-linked commits automatically.\n`);
+      process.stdout.write(`Existing repo-local .git/hooks/post-commit hooks are chained.\n`);
+    } else {
+      const configPath = await installCodexOtelConfig(rootDir, endpoint);
+      process.stdout.write(`updated ${configPath}\n`);
+      const hookPath = await installGitHook(rootDir);
+      process.stdout.write(`installed post-commit hook: ${hookPath}\n`);
+    }
     return;
   }
 
@@ -96,7 +107,7 @@ async function main(): Promise<void> {
 
   process.stdout.write("usage:\n");
   process.stdout.write("  eyes4ai serve [port]\n");
-  process.stdout.write("  eyes4ai install [port]\n");
+  process.stdout.write("  eyes4ai install [port] [--global]\n");
   process.stdout.write("  eyes4ai reprocess [file]\n");
   process.stdout.write("  eyes4ai record-commit [hash]\n");
   process.stdout.write("  eyes4ai report [--days N] [--json]\n");
