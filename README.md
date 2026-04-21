@@ -14,7 +14,7 @@ The current prototype focuses on Codex. It collects Codex OpenTelemetry locally,
 
 What it does not do yet:
 
-- polished reports or dashboards
+- polished dashboards
 - commit correlation presentation
 - public/team summaries
 - multi-agent support beyond Codex
@@ -68,6 +68,10 @@ npm run dev -- reprocess .ai/private/events/$(date -u +%F).jsonl
   Writes repo-local Codex config that points to the local receiver.
 - `npm run dev -- reprocess <file>`
   Re-runs the latest normalizer against an existing JSONL file.
+- `npm run dev -- report`
+  Prints a repo-level summary from collected AI telemetry.
+- `npm run dev -- report --json`
+  Prints the same summary as JSON.
 - `npm run check`
   Type-checks the project.
 - `npm run build`
@@ -83,6 +87,17 @@ Current local files:
   Append-only repo log of prompts that changed tracked files.
 - `.codex/config.toml`
   Repo-local Codex OTel config used for dogfooding.
+
+Current repo layout:
+
+- `apps/cli`
+  User-facing CLI surface.
+- `packages/schema`
+  Shared event and telemetry types.
+- `packages/ingestion`
+  OTLP receiver, normalizer, installer, and pricing logic.
+- `packages/reporting`
+  Repo-level summaries and presentation logic.
 
 ## Git Policy
 

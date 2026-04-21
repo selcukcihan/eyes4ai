@@ -4,7 +4,7 @@
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
     "outDir": "dist",
-    "rootDir": "src",
+    "rootDir": ".",
     "strict": true,
     "noImplicitOverride": true,
     "noUncheckedIndexedAccess": true,
@@ -15,6 +15,7 @@
     "resolveJsonModule": true
   },
   "include": [
-    "src/**/*.ts"
+    "apps/**/*.ts",
+    "packages/**/*.ts"
   ]
 }

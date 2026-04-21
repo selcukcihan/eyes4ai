@@ -73,6 +73,44 @@ Current fields:
 - `mcpServerOrigin`
 - `observedViaOtel`
 
+### `ai.session.start`
+
+Used for normalized session-start events.
+
+Current fields:
+
+- `model`
+- `providerName`
+- `reasoningEffort`
+- `reasoningSummary`
+- `approvalPolicy`
+- `sandboxPolicy`
+- `mcpServers`
+
+### `ai.transport`
+
+Used for normalized transport-level events that may later be compacted into higher-level summaries.
+
+Current fields:
+
+- `category`
+- `eventKind`
+- `durationMs`
+- `success`
+- `connectionReused`
+- `endpoint`
+
+### `ai.tool_decision`
+
+Used for tool approval or decision events.
+
+Current fields:
+
+- `toolName`
+- `toolUseId`
+- `decision`
+- `decisionSource`
+
 ### `git.commit`
 
 Used for Git correlation events.

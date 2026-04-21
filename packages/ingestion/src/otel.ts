@@ -1,5 +1,5 @@
 import crypto from "node:crypto";
-import type { OtlpAnyValue, OtlpKeyValue, OtlpLogRecord } from "./types.js";
+import type { OtlpAnyValue, OtlpKeyValue, OtlpLogRecord } from "../../schema/src/index.js";
 
 export function coerceStringPrimitive(input: string): string | number | boolean {
   if (input === "true") {

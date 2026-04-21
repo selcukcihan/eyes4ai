@@ -1,10 +1,9 @@
 import path from "node:path";
 import process from "node:process";
 import { readFile, writeFile } from "node:fs/promises";
-import { startServer } from "./server.js";
-import { installCodexOtelConfig } from "./install.js";
-import { upgradeNormalizedEvent } from "./normalize.js";
-import type { EyesEvent } from "./types.js";
+import { installCodexOtelConfig, startServer, upgradeNormalizedEvent } from "../../../packages/ingestion/src/index.js";
+import { generateRepoReport, renderRepoReport } from "../../../packages/reporting/src/index.js";
+import type { EyesEvent } from "../../../packages/schema/src/index.js";
 
 function rootDirFromCwd(): string {
   return process.cwd();
@@ -49,10 +48,21 @@ async function main(): Promise<void> {
     return;
   }
 
+  if (command === "report") {
+    const report = await generateRepoReport(rootDir);
+    if (rest[0] === "--json") {
+      process.stdout.write(`${JSON.stringify(report, null, 2)}\n`);
+      return;
+    }
+    process.stdout.write(`${renderRepoReport(report)}\n`);
+    return;
+  }
+
   process.stdout.write("usage:\n");
   process.stdout.write("  eyes-for-ai serve [port]\n");
   process.stdout.write("  eyes-for-ai install [port]\n");
   process.stdout.write("  eyes-for-ai reprocess [file]\n");
+  process.stdout.write("  eyes-for-ai report [--json]\n");
   process.exitCode = 1;
 }
 

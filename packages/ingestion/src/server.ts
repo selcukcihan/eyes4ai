@@ -3,7 +3,7 @@ import path from "node:path";
 import { appendJsonLine, todayJsonlPath } from "./fs-utils.js";
 import { attributesToRecord } from "./otel.js";
 import { normalizeCodexLogRecord } from "./normalize.js";
-import type { OtlpLogsRequest } from "./types.js";
+import type { OtlpLogsRequest } from "../../schema/src/index.js";
 
 async function readJsonBody(req: http.IncomingMessage): Promise<unknown> {
   const chunks: Buffer[] = [];

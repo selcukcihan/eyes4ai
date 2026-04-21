@@ -3,14 +3,18 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "bin": {
-    "eyes-for-ai": "./dist/cli.js"
+    "eyes-for-ai": "./dist/apps/cli/src/cli.js"
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "check": "tsc -p tsconfig.json --noEmit",
-    "dev": "tsx src/cli.ts",
-    "start": "node dist/cli.js"
+    "dev": "tsx apps/cli/src/cli.ts",
+    "start": "node dist/apps/cli/src/cli.js"
   },
   "devDependencies": {
     "@types/node": "^24.6.0",

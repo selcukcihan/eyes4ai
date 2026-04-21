@@ -1,4 +1,4 @@
-import type { PricingEntry } from "./types.js";
+import type { PricingEntry } from "../../schema/src/index.js";
 
 export const PRICING_TABLE: Record<string, PricingEntry> = {
   "gpt-5.4": {

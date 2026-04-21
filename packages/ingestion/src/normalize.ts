@@ -1,6 +1,6 @@
 import { estimateTokenCostUsd } from "./pricing.js";
 import { anyValueToPrimitive, attributesToRecord, coerceRecordPrimitives, logRecordTimestamp, makeEventId, sha256 } from "./otel.js";
-import type { EyesEvent, OtlpLogRecord } from "./types.js";
+import type { EyesEvent, OtlpLogRecord } from "../../schema/src/index.js";
 
 function normalizeSessionId(attributes: Record<string, unknown>): string {
   const raw = attributes["conversation.id"];
