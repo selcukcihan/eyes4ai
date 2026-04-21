@@ -1,4 +1,6 @@
 export * from "./fs-utils.js";
+export * from "./git-hook.js";
+export * from "./git-install.js";
 export * from "./install.js";
 export * from "./normalize.js";
 export * from "./otel.js";

@@ -43,6 +43,8 @@ export interface GitCommitData {
   commit: string;
   branch: string;
   filesChanged: string[];
+  linesAdded: number;
+  linesDeleted: number;
   relatedAiSessions: string[];
 }
 

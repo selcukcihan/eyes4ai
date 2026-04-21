@@ -1,5 +1,5 @@
 node_modules/
 dist/
 .DS_Store
-.ai/private/
-.ai/state/
+.eyes4ai/private/
+.eyes4ai/state/
