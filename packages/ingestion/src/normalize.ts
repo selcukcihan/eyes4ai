@@ -237,6 +237,7 @@ function normalizeFromParts(
         reasoningTokenCount,
         toolTokenCount,
         estimatedCostUsd: estimated.estimatedCostUsd,
+        estimatedCreditCost: estimated.estimatedCreditCost,
         costBasis: estimated.costBasis
       }
     };
@@ -272,6 +273,32 @@ export function normalizeCodexLogRecord(record: OtlpLogRecord, resourceAttribute
 }
 
 export function upgradeNormalizedEvent(event: EyesEvent): EyesEvent {
+  if (event.type === "ai.usage") {
+    const data = event.data as Record<string, unknown>;
+    const model = optionalString(data.model);
+    const inputTokenCount = optionalNumber(data.inputTokenCount) ?? 0;
+    const outputTokenCount = optionalNumber(data.outputTokenCount) ?? 0;
+    const cachedTokenCount = optionalNumber(data.cachedTokenCount);
+    const estimated = model
+      ? estimateTokenCostUsd({
+          model,
+          inputTokenCount,
+          outputTokenCount,
+          ...(cachedTokenCount === undefined ? {} : { cachedTokenCount })
+        })
+      : { costBasis: "unknown" as const };
+
+    return {
+      ...event,
+      data: {
+        ...data,
+        ...(estimated.estimatedCostUsd === undefined ? {} : { estimatedCostUsd: estimated.estimatedCostUsd }),
+        ...(estimated.estimatedCreditCost === undefined ? {} : { estimatedCreditCost: estimated.estimatedCreditCost }),
+        costBasis: estimated.costBasis
+      }
+    };
+  }
+
   if (event.type !== "codex.raw") {
     return event;
   }

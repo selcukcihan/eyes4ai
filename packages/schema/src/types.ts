@@ -3,6 +3,9 @@ export interface PricingEntry {
   inputPerMillionUsd: number;
   outputPerMillionUsd: number;
   cachedInputPerMillionUsd?: number;
+  inputPerMillionCredits?: number;
+  outputPerMillionCredits?: number;
+  cachedInputPerMillionCredits?: number;
   source: string;
   toolFeesExcluded: boolean;
 }
@@ -15,7 +18,8 @@ export interface AiUsageData {
   reasoningTokenCount?: number;
   toolTokenCount?: number;
   estimatedCostUsd?: number;
-  costBasis?: "token_estimate_only" | "token_estimate_plus_modeled_tool_fees" | "unknown";
+  estimatedCreditCost?: number;
+  costBasis?: "token_estimate_only" | "credit_estimate_only" | "token_and_credit_estimate" | "token_estimate_plus_modeled_tool_fees" | "unknown";
 }
 
 export interface PromptData {

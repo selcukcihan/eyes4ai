@@ -20,6 +20,7 @@ export interface RepoReport {
   codeChangingAiToolInvocations: number;
   totalTokensConsumed: number;
   totalEstimatedCostUsd: number;
+  totalEstimatedCreditCost: number | null;
   totalAiTimeMs: number;
   toolInvocations: ToolInvocationSummary[];
   activityHistogram: HistogramPoint[];
@@ -60,6 +61,14 @@ function sumUsageCost(event: EyesEvent): number {
   }
   const cost = (event.data as Record<string, unknown>).estimatedCostUsd;
   return typeof cost === "number" ? cost : 0;
+}
+
+function sumUsageCredits(event: EyesEvent): number {
+  if (event.type !== "ai.usage") {
+    return 0;
+  }
+  const credits = (event.data as Record<string, unknown>).estimatedCreditCost;
+  return typeof credits === "number" ? credits : 0;
 }
 
 function extractToolName(event: EyesEvent): string | null {
@@ -183,6 +192,15 @@ export async function generateRepoReport(repoPath: string): Promise<RepoReport> 
   const reportableEvents = events.filter((event) => (sessionCounts.get(event.sessionId) ?? 0) >= 3);
   const totalTokensConsumed = reportableEvents.reduce((total, event) => total + sumUsageTokens(event), 0);
   const totalEstimatedCostUsd = Number(reportableEvents.reduce((total, event) => total + sumUsageCost(event), 0).toFixed(6));
+  const creditBearingUsageEvents = reportableEvents.filter((event) => {
+    if (event.type !== "ai.usage") {
+      return false;
+    }
+    return typeof (event.data as Record<string, unknown>).estimatedCreditCost === "number";
+  });
+  const totalEstimatedCreditCost = creditBearingUsageEvents.length === 0
+    ? null
+    : Number(creditBearingUsageEvents.reduce((total, event) => total + sumUsageCredits(event), 0).toFixed(6));
   const codeChangingInvocations = codeChangingAiToolInvocations(reportableEvents);
 
   return {
@@ -193,6 +211,7 @@ export async function generateRepoReport(repoPath: string): Promise<RepoReport> 
     codeChangingAiToolInvocations: codeChangingInvocations,
     totalTokensConsumed,
     totalEstimatedCostUsd,
+    totalEstimatedCreditCost,
     totalAiTimeMs: totalAiTimeMs(reportableEvents),
     toolInvocations: toolInvocationSummary(reportableEvents),
     activityHistogram: activityHistogram(reportableEvents)
@@ -243,7 +262,12 @@ export function renderRepoReport(report: RepoReport): string {
     lines.push("   No activity with reliable timestamps yet.");
   }
   lines.push("4. Costs");
-  lines.push(`   $${report.totalEstimatedCostUsd.toFixed(6)}`);
+  if (report.totalEstimatedCreditCost !== null) {
+    lines.push(`   Codex credits: ${report.totalEstimatedCreditCost.toFixed(6)}`);
+  } else {
+    lines.push("   Codex credits: unavailable for the observed model mix.");
+  }
+  lines.push(`   API-equivalent USD: $${report.totalEstimatedCostUsd.toFixed(6)}`);
   lines.push("5. Total time spent by AI");
   lines.push(`   ${formatDuration(report.totalAiTimeMs)}`);
   lines.push("6. Tool invocations");

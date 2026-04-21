@@ -87,7 +87,8 @@ Based on the current Codex source and docs, the MVP should separate fields into 
 - prompt hash
 - prompt preview
 - session timeline
-- estimated cost in USD from model pricing tables and token counts
+- estimated Codex credit usage from the Codex pricing table when available
+- estimated API-equivalent cost in USD from model pricing tables and token counts
 - commit correlation
 - file-touch summaries from Git state and repo diffs
 
@@ -104,6 +105,7 @@ These should not be required for the MVP. The product should work in a privacy-p
 
 - authoritative billed dollar cost from Codex itself
 - complete accounting for tool-specific surcharges unless pricing is separately modeled
+- a single universal money estimate across Codex included usage, Codex credits, and API-key sessions
 - full parity between CLI project-scoped OTel config and desktop app project-scoped OTel config
 
 Current Codex source shows an OTel layer that emits `codex.user_prompt`, `codex.tool_result`, `codex.sse_event`, `codex.api_request`, websocket events, and token counts on completed SSE events. It also shows configuration for `log_user_prompt`, exporters, traces, and metrics.

@@ -57,6 +57,7 @@ Current fields:
 - `reasoningTokenCount`
 - `toolTokenCount`
 - `estimatedCostUsd`
+- `estimatedCreditCost`
 - `costBasis`
 
 ### `ai.tool_use.post`
@@ -137,7 +138,10 @@ Current fields:
 Current values:
 
 - `token_estimate_only`
+- `credit_estimate_only`
+- `token_and_credit_estimate`
 - `token_estimate_plus_modeled_tool_fees`
 - `unknown`
 
 `estimatedCostUsd` is intentionally an estimate, not a billing claim.
+`estimatedCreditCost` is also an estimate and is intended to track Codex product credit usage from the published Codex pricing table, not actual invoiced spend.

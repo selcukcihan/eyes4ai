@@ -8,7 +8,8 @@ The current prototype focuses on Codex. It collects Codex OpenTelemetry locally,
 
 - receives Codex OTLP/HTTP JSON logs locally
 - normalizes Codex events into `eyes-for-ai.event.v1`
-- estimates token-based cost from model pricing data
+- estimates Codex credit usage from the official Codex pricing page
+- estimates API-equivalent USD cost from model token pricing
 - keeps raw/private AI telemetry out of git by default
 - gives you a local dogfooding loop to inspect real AI activity
 
@@ -116,6 +117,7 @@ The current repo ignores the private event stream by default because raw AI tele
 - The normalizer is improving, but some Codex events still fall through as `codex.raw`.
 - Transport-level events are intentionally noisy and are not yet collapsed into user-facing summaries.
 - Cost is an estimate, not invoice-equivalent billing.
+- Codex product usage and API-key usage do not map to the same unit. The report now shows Codex credits when the official Codex rate card covers the model, and also shows an API-equivalent USD estimate.
 
 ## Product Direction
 
