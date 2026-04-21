@@ -53,6 +53,58 @@ Codex hooks should write normalized events into append-only JSONL files:
 - `Stop` -> `ai.turn.stop`
 - optional `SessionStart` -> `ai.session.start`
 
+## What We Can Log In A Codex MVP
+
+Based on the current Codex hooks documentation, the MVP should separate fields into three buckets.
+
+### Guaranteed From Current Codex Hook Inputs
+
+- session id
+- turn id
+- current working directory
+- transcript path when available
+- active model slug
+- user prompt text on `UserPromptSubmit`
+- Bash tool command before execution on `PreToolUse`
+- Bash tool command and Bash tool response on `PostToolUse`
+- last assistant message on `Stop` when available
+
+### Derived By Our Own Recorder
+
+- event timestamp
+- prompt hash
+- prompt preview
+- session timeline
+- per-turn elapsed time that we compute between hook events
+- commit correlation
+- inferred file-touch set from observed Bash commands and Git state
+
+### Not Reliably Available From Current Codex Hooks
+
+- token usage
+- exact latency from Codex itself
+- exact dollar cost from Codex itself
+- complete cross-tool usage for all Codex tools
+
+Current Codex docs document `model` in the common hook input fields and document `prompt` for `UserPromptSubmit`. They also document that `PreToolUse` and `PostToolUse` currently only support `Bash`, and explicitly note that they do not currently intercept MCP, Write, WebSearch, or other non-shell tools.
+
+Inference:
+
+For the Codex-only MVP, we should promise:
+
+- model used
+- prompt submitted
+- Bash tool activity observed through hooks
+- approximate turn timing we compute ourselves
+
+We should not promise:
+
+- authoritative token counts
+- authoritative cost
+- complete tool inventory across every Codex capability
+
+Those can be designed as future fields with nullable values.
+
 ### Correlation
 
 Git hooks should not try to discover prompt data. They should only:
@@ -105,9 +157,37 @@ Example prompt event:
   },
   "type": "ai.prompt",
   "data": {
+    "model": "gpt-5.4",
     "prompt_preview": "Add repo-local AI logging with minimal friction",
     "prompt_hash": "sha256:...",
-    "raw_prompt_stored": false
+    "raw_prompt_stored": false,
+    "token_usage": null,
+    "latency_ms": null,
+    "estimated_cost_usd": null
+  }
+}
+```
+
+Example observed Bash tool event:
+
+```json
+{
+  "schema": "eyes-for-ai.event.v1",
+  "event_id": "evt_01b",
+  "timestamp": "2026-04-21T09:21:02Z",
+  "session_id": "sess_01",
+  "turn_id": "turn_01",
+  "source": {
+    "kind": "codex_hook",
+    "surface": "codex",
+    "event": "PostToolUse"
+  },
+  "type": "ai.tool_use.post",
+  "data": {
+    "tool_name": "Bash",
+    "tool_use_id": "toolu_01",
+    "command": "git status --short",
+    "observed_via_hook": true
   }
 }
 ```
@@ -146,6 +226,22 @@ Default behavior should be conservative:
 - keep detailed event traces local-first
 - keep commit flow non-blocking
 - support optional public summaries later
+
+## Observability Policy
+
+For v1, the log schema should include these fields even when they are unavailable:
+
+- `model`
+- `token_usage`
+- `latency_ms`
+- `estimated_cost_usd`
+- `tool_name`
+
+Reason:
+
+- it keeps the schema stable
+- it allows adapters from future tools to fill more fields
+- it prevents us from pretending Codex provides data that it does not currently expose
 
 ## Open Product Decisions
 
