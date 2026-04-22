@@ -137,4 +137,4 @@ npm run build
 npm publish
 ```
 
-The package publishes as `@eyes4ai/cli`. Users install via `npx @eyes4ai/cli install`.
+The package publishes as `@eyes4ai/cli`. Users install via `npm install -g @eyes4ai/cli`.

@@ -1,5 +1,5 @@
 import { writeFile, chmod, access, readFile, unlink, mkdir } from "node:fs/promises";
-import { execFile } from "node:child_process";
+import { execFile, execFileSync } from "node:child_process";
 import path from "node:path";
 import os from "node:os";
 import { ensureDir } from "./fs-utils.js";
@@ -24,30 +24,28 @@ async function fileExists(filePath: string): Promise<boolean> {
   }
 }
 
-function resolveNodePath(): string {
-  return process.execPath;
-}
-
 /**
- * Resolve the path to the compiled CLI entry point.
- * Works whether running from source (tsx) or compiled (dist/).
+ * Find the globally-installed eyes4ai CLI path.
+ * Returns [program] to invoke the CLI.
  */
-function resolveCliJsPath(): string {
-  // If running from dist/, use that path directly
-  const thisFile = new URL(import.meta.url).pathname;
-  const distMatch = thisFile.match(/^(.+?)\/dist\//);
-  if (distMatch) {
-    return path.join(distMatch[1]!, "dist", "apps", "cli", "src", "cli.js");
+function resolveCliCommand(): string[] {
+  try {
+    const globalBin = execFileSync("which", ["eyes4ai"], { encoding: "utf8" }).trim();
+    if (globalBin) return [globalBin];
+  } catch {
+    // not found via which
   }
-  // Fallback: assume standard monorepo layout relative to this file
-  // This file is packages/ingestion/src/daemon.ts → root is ../../..
-  const root = path.resolve(path.dirname(thisFile), "..", "..", "..");
-  return path.join(root, "dist", "apps", "cli", "src", "cli.js");
+
+  // Fallback: use the current process to locate the CLI
+  throw new Error("eyes4ai not found. Install globally first: npm install -g @eyes4ai/cli");
 }
 
 // ── macOS launchd ─────────────────────────────────────────────────────
 
-function launchdPlist(nodePath: string, cliPath: string, port: number, logDir: string): string {
+function launchdPlist(cliCommand: string[], port: number, logDir: string): string {
+  const args = [...cliCommand, "serve", String(port)]
+    .map((a) => `    <string>${a}</string>`)
+    .join("\n");
   return `<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
@@ -56,10 +54,7 @@ function launchdPlist(nodePath: string, cliPath: string, port: number, logDir: s
   <string>${LABEL}</string>
   <key>ProgramArguments</key>
   <array>
-    <string>${nodePath}</string>
-    <string>${cliPath}</string>
-    <string>serve</string>
-    <string>${port}</string>
+${args}
   </array>
   <key>RunAtLoad</key>
   <true/>
@@ -71,6 +66,11 @@ function launchdPlist(nodePath: string, cliPath: string, port: number, logDir: s
   <string>${path.join(logDir, "eyes4ai.stderr.log")}</string>
   <key>WorkingDirectory</key>
   <string>${os.homedir()}</string>
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>PATH</key>
+    <string>/usr/local/bin:/usr/bin:/bin:/opt/homebrew/bin</string>
+  </dict>
 </dict>
 </plist>
 `;
@@ -86,15 +86,14 @@ async function installLaunchd(port: number): Promise<string> {
   await ensureDir(logDir);
   await ensureDir(path.dirname(plistPath));
 
-  const nodePath = resolveNodePath();
-  const cliPath = resolveCliJsPath();
+  const cliCommand = resolveCliCommand();
 
   // Unload existing service if present
   if (await fileExists(plistPath)) {
     await exec("launchctl", ["unload", plistPath]).catch(() => {});
   }
 
-  await writeFile(plistPath, launchdPlist(nodePath, cliPath, port, logDir), "utf8");
+  await writeFile(plistPath, launchdPlist(cliCommand, port, logDir), "utf8");
   await exec("launchctl", ["load", plistPath]);
 
   return plistPath;
@@ -110,17 +109,19 @@ async function uninstallLaunchd(): Promise<boolean> {
 
 // ── Linux systemd ─────────────────────────────────────────────────────
 
-function systemdUnit(nodePath: string, cliPath: string, port: number): string {
+function systemdUnit(cliCommand: string[], port: number): string {
+  const execStart = [...cliCommand, "serve", String(port)].join(" ");
   return `[Unit]
 Description=eyes4ai OTel ingestion server
 After=network.target
 
 [Service]
 Type=simple
-ExecStart=${nodePath} ${cliPath} serve ${port}
+ExecStart=${execStart}
 Restart=on-failure
 RestartSec=5
 WorkingDirectory=${os.homedir()}
+Environment=PATH=/usr/local/bin:/usr/bin:/bin
 
 [Install]
 WantedBy=default.target
@@ -135,10 +136,9 @@ async function installSystemd(port: number): Promise<string> {
   const unitPath = systemdUnitPath();
   await ensureDir(path.dirname(unitPath));
 
-  const nodePath = resolveNodePath();
-  const cliPath = resolveCliJsPath();
+  const cliCommand = resolveCliCommand();
 
-  await writeFile(unitPath, systemdUnit(nodePath, cliPath, port), "utf8");
+  await writeFile(unitPath, systemdUnit(cliCommand, port), "utf8");
   await exec("systemctl", ["--user", "daemon-reload"]);
   await exec("systemctl", ["--user", "enable", LABEL]);
   await exec("systemctl", ["--user", "start", LABEL]);

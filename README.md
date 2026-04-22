@@ -20,19 +20,22 @@ It uses OpenTelemetry to passively capture telemetry that Codex and Claude Code 
 ## Quick start
 
 ```bash
-# Install globally (configures Codex, Claude Code, git hooks, auto-start daemon)
-npx @eyes4ai/cli install 4318 --global
+# Install eyes4ai globally
+npm install -g @eyes4ai/cli
 
-# Or install for a single repo
+# Set up everything (Codex, Claude Code, git hooks, auto-start daemon)
+eyes4ai install 4318 --global
+
+# Or install for a single repo only
 cd your-repo
-npx @eyes4ai/cli install 4318
-npx @eyes4ai/cli serve 4318
+eyes4ai install 4318
+eyes4ai serve 4318
 ```
 
 That's it. Use your AI tools as usual. When you want a report:
 
 ```bash
-npx @eyes4ai/cli report --days 7
+eyes4ai report --days 7
 ```
 
 ```
@@ -89,7 +92,7 @@ All data lives in `.eyes4ai/private/events/` — nothing leaves your machine.
 
 ## Docs
 
-Full documentation: [selcukcihan.github.io/eyes4ai](https://selcukcihan.github.io/eyes4ai)
+Full documentation: [eyes4ai.selcukcihan.com](https://eyes4ai.selcukcihan.com)
 
 ## Contributing
 

@@ -20,7 +20,10 @@ Sleep 1s
 Type "# Step 1: Install globally"
 Enter
 Sleep 500ms
-Type "npx @eyes4ai/cli install 4318 --global"
+Type "npm install -g @eyes4ai/cli"
+Enter
+Sleep 2s
+Type "eyes4ai install 4318 --global"
 Enter
 Sleep 3s
 
@@ -49,7 +52,7 @@ Sleep 2s
 Type "# Step 4: Check your AI activity report"
 Enter
 Sleep 500ms
-Type "npx @eyes4ai/cli report --days 7"
+Type "eyes4ai report --days 7"
 Enter
 Sleep 4s
 

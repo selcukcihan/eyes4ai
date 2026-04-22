@@ -3,10 +3,11 @@ title: Quick Start
 description: Get eyes4ai running in under a minute.
 ---
 
-## 1. Install globally
+## 1. Install and set up
 
 ```bash
-npx @eyes4ai/cli install --global
+npm install -g @eyes4ai/cli
+eyes4ai install --global
 ```
 
 That's it. This configures Codex and Claude Code to send telemetry, installs a Git commit hook, and starts a background server that persists across reboots.
@@ -23,7 +24,7 @@ Commit your work with Git as normal. The post-commit hook automatically records 
 
 ```bash
 cd /path/to/your/repo
-npx @eyes4ai/cli report
+eyes4ai report
 ```
 
 Output:
@@ -58,7 +59,7 @@ Trend
 For programmatic consumption:
 
 ```bash
-npx @eyes4ai/cli report --json
+eyes4ai report --json
 ```
 
 ## Custom period
@@ -66,5 +67,5 @@ npx @eyes4ai/cli report --json
 Default is 7 days. For a different window:
 
 ```bash
-npx @eyes4ai/cli report --days 30
+eyes4ai report --days 30
 ```

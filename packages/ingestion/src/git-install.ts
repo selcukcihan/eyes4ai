@@ -20,7 +20,7 @@ node --import tsx "${cliPath}" record-commit >/dev/null 2>&1 &
 
 /**
  * Global post-commit hook.
- * Uses npx to run eyes4ai (no hardcoded path), and chains to any
+ * Uses the globally-installed eyes4ai binary, and chains to any
  * repo-local .git/hooks/post-commit that may exist, since
  * core.hooksPath causes git to skip .git/hooks/ entirely.
  */
@@ -32,7 +32,7 @@ ${HOOK_MARKER}
 # Guard: skip if already recorded (prevents double-recording).
 [ "$EYES4AI_HOOKED" = "1" ] && exit 0
 export EYES4AI_HOOKED=1
-npx --yes eyes4ai record-commit >/dev/null 2>&1 &
+eyes4ai record-commit >/dev/null 2>&1 &
 
 # Chain to repo-local hook if one exists, since core.hooksPath
 # overrides .git/hooks/ entirely.

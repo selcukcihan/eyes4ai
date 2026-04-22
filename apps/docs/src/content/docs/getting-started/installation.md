@@ -3,14 +3,18 @@ title: Installation
 description: How to install eyes4ai globally or per-repo.
 ---
 
-eyes4ai runs via `npx` — no global install required.
+## Install
 
-## Global install (recommended)
+```bash
+npm install -g @eyes4ai/cli
+```
+
+## Global setup (recommended)
 
 Configures all your repos at once. Run this once:
 
 ```bash
-npx @eyes4ai/cli install --global
+eyes4ai install --global
 ```
 
 This does four things:
@@ -26,13 +30,13 @@ Every repo you work in will now record AI activity and commit correlations autom
 The global Git hook chains to any existing repo-local `.git/hooks/post-commit`, so your existing hooks keep working.
 :::
 
-## Per-repo install
+## Per-repo setup
 
 If you prefer to enable eyes4ai for specific repos only:
 
 ```bash
 cd /path/to/your/repo
-npx @eyes4ai/cli install
+eyes4ai install
 ```
 
 This writes config files into the repo's `.codex/`, `.claude/`, and `.git/hooks/` directories.
@@ -42,7 +46,7 @@ This writes config files into the repo's `.codex/`, `.claude/`, and `.git/hooks/
 The OTel ingestion server defaults to port 4318. To use a different port:
 
 ```bash
-npx @eyes4ai/cli install --global 4319
+eyes4ai install --global 4319
 ```
 
 ## What gets created
@@ -67,7 +71,7 @@ Logs are written to `~/.eyes4ai/logs/`.
 If you need to start the server manually (e.g., for local-only installs):
 
 ```bash
-npx @eyes4ai/cli serve
+eyes4ai serve
 ```
 
 ## Uninstalling
@@ -75,7 +79,7 @@ npx @eyes4ai/cli serve
 To stop and remove the background daemon:
 
 ```bash
-npx @eyes4ai/cli uninstall
+eyes4ai uninstall
 ```
 
 This removes the daemon config. Tool configs and git hooks are left in place — remove them manually if needed.
