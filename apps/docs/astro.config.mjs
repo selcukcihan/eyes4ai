@@ -4,9 +4,6 @@ import starlight from "@astrojs/starlight";
 export default defineConfig({
   site: "https://eyes4ai.selcukcihan.com",
   base: "/",
-  redirects: {
-    "/": "/getting-started/introduction",
-  },
   integrations: [
     starlight({
       title: "eyes4ai",
