@@ -3,7 +3,7 @@
 Passive AI activity recorder for Git repositories. Tracks usage across OpenAI Codex, Claude Code, and more — all data stays local.
 
 <p align="center">
-  <img src="apps/docs/src/assets/architecture.svg" alt="eyes4ai architecture" width="800">
+  <img src="demo.gif" alt="eyes4ai demo" width="800">
 </p>
 
 ## What it does
