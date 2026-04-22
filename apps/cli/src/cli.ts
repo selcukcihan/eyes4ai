@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import path from "node:path";
 import process from "node:process";
 import { readFile, writeFile } from "node:fs/promises";
