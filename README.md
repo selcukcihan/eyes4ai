@@ -24,15 +24,17 @@ It uses OpenTelemetry to passively capture telemetry that Codex and Claude Code 
 npm install -g @eyes4ai/cli
 
 # Set up everything (Codex, Claude Code, git hooks, auto-start daemon)
-eyes4ai install 4318 --global
+eyes4ai install --global
 
 # Or install for a single repo only
 cd your-repo
-eyes4ai install 4318
-eyes4ai serve 4318
+eyes4ai install
+eyes4ai serve
 ```
 
-That's it. Use your AI tools as usual. When you want a report:
+**Important:** Restart any running Codex or Claude Code sessions after install so they pick up the new config.
+
+Then use your AI tools as usual. When you want a report:
 
 ```bash
 eyes4ai report --days 7

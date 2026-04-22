@@ -12,6 +12,10 @@ eyes4ai install --global
 
 That's it. This configures Codex and Claude Code to send telemetry, installs a Git commit hook, and starts a background server that persists across reboots.
 
+:::caution[Restart your AI tools]
+If Codex or Claude Code is already running, **restart it** so it picks up the new config. Sessions started before install won't emit telemetry.
+:::
+
 ## 2. Use your AI tools normally
 
 Open Codex or Claude Code in any repo and work as usual. eyes4ai captures activity silently via OpenTelemetry.

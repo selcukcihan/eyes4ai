@@ -57,6 +57,7 @@ async function main(): Promise<void> {
 
       process.stdout.write(`\nAll repos will now record AI-linked commits automatically.\n`);
       process.stdout.write(`The OTel server is running and will restart on boot.\n`);
+      process.stdout.write(`\nIMPORTANT: Restart any running Codex or Claude Code sessions to pick up the new config.\n`);
     } else {
       const codexPath = await installCodexOtelConfig(rootDir, endpoint);
       process.stdout.write(`codex config: ${codexPath}\n`);
@@ -64,6 +65,8 @@ async function main(): Promise<void> {
       process.stdout.write(`claude config: ${claudePath}\n`);
       const hookPath = await installGitHook(rootDir);
       process.stdout.write(`git hook:     ${hookPath}\n`);
+      process.stdout.write(`\nIMPORTANT: Restart any running Codex or Claude Code sessions to pick up the new config.\n`);
+      process.stdout.write(`Start the server manually: eyes4ai serve\n`);
     }
     return;
   }

@@ -33,6 +33,7 @@ export default defineConfig({
             { label: "Configuration", slug: "guides/configuration" },
             { label: "Report Format", slug: "guides/report-format" },
             { label: "Supported Tools", slug: "guides/supported-tools" },
+            { label: "Troubleshooting", slug: "guides/troubleshooting" },
           ],
         },
         {
