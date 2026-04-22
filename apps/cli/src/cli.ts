@@ -81,10 +81,7 @@ async function main(): Promise<void> {
 
   if (command === "record-commit") {
     const commitHash = rest[0];
-    const event = await recordCommit(rootDir, commitHash || undefined);
-    const data = event.data as Record<string, unknown>;
-    const sessions = data.relatedAiSessions as string[];
-    process.stderr.write(`eyes4ai: recorded commit ${(data.commit as string).slice(0, 8)} (${sessions.length} AI session(s) linked)\n`);
+    await recordCommit(rootDir, commitHash || undefined);
     return;
   }
 
