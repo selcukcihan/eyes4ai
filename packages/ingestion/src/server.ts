@@ -1,8 +1,11 @@
 import http from "node:http";
 import path from "node:path";
+import { readFile } from "node:fs/promises";
+import { fileURLToPath } from "node:url";
 import { appendJsonLine, todayJsonlPath } from "./fs-utils.js";
 import { attributesToRecord } from "./otel.js";
 import { normalizeLogRecord } from "./normalize-dispatch.js";
+import { generateMvpReport } from "../../reporting/src/index.js";
 import type { OtlpLogsRequest } from "../../schema/src/index.js";
 
 async function readJsonBody(req: http.IncomingMessage): Promise<unknown> {
@@ -51,6 +54,32 @@ export function startServer(rootDir: string, port: number): http.Server {
       if (req.method === "GET" && req.url === "/health") {
         res.writeHead(200, { "content-type": "application/json" });
         res.end(JSON.stringify({ ok: true, eventsPath: path.join(rootDir, ".eyes4ai", "private", "events") }));
+        return;
+      }
+
+      if (req.method === "GET" && (req.url === "/" || req.url === "/dashboard")) {
+        const __dirname = path.dirname(fileURLToPath(import.meta.url));
+        const htmlPath = path.join(__dirname, "dashboard.html");
+        // In dev the .html is next to the .ts source; in dist it's copied alongside .js
+        let html: string;
+        try {
+          html = await readFile(htmlPath, "utf8");
+        } catch {
+          // Fallback: look relative to compiled output
+          const fallback = path.resolve(__dirname, "..", "..", "..", "packages", "ingestion", "src", "dashboard.html");
+          html = await readFile(fallback, "utf8");
+        }
+        res.writeHead(200, { "content-type": "text/html; charset=utf-8" });
+        res.end(html);
+        return;
+      }
+
+      if (req.method === "GET" && req.url?.startsWith("/api/report")) {
+        const url = new URL(req.url, `http://${req.headers.host ?? "localhost"}`);
+        const days = Number(url.searchParams.get("days") ?? "7");
+        const report = await generateMvpReport(rootDir, days);
+        res.writeHead(200, { "content-type": "application/json" });
+        res.end(JSON.stringify(report));
         return;
       }
 

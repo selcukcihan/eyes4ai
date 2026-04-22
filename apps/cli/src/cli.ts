@@ -2,6 +2,7 @@
 import path from "node:path";
 import process from "node:process";
 import { readFile, writeFile } from "node:fs/promises";
+import { fileURLToPath } from "node:url";
 import { detectPlatform, installClaudeOtelConfig, installClaudeOtelConfigGlobal, installCodexOtelConfig, installCodexOtelConfigGlobal, installDaemon, installGitHook, installGitHookGlobal, recordCommit, startServer, uninstallDaemon, upgradeNormalizedEvent } from "../../../packages/ingestion/src/index.js";
 import { generateMvpReport, generateRepoReport, renderMvpReport, renderRepoReport } from "../../../packages/reporting/src/index.js";
 import type { EyesEvent } from "../../../packages/schema/src/index.js";
@@ -10,15 +11,29 @@ function rootDirFromCwd(): string {
   return process.cwd();
 }
 
+async function getVersion(): Promise<string> {
+  const __dirname = path.dirname(fileURLToPath(import.meta.url));
+  const pkgPath = path.resolve(__dirname, "..", "..", "..", "..", "package.json");
+  const pkg = JSON.parse(await readFile(pkgPath, "utf8")) as { version: string };
+  return pkg.version;
+}
+
 async function main(): Promise<void> {
   const [, , command, ...rest] = process.argv;
   const rootDir = rootDirFromCwd();
+
+  if (command === "--version" || command === "-v" || command === "version") {
+    const version = await getVersion();
+    process.stdout.write(`${version}\n`);
+    return;
+  }
 
   if (command === "serve") {
     const portArg = rest[0];
     const port = portArg ? Number(portArg) : 4318;
     const server = startServer(rootDir, port);
     process.stdout.write(`eyes4ai server listening on http://127.0.0.1:${port}\n`);
+    process.stdout.write(`dashboard: http://127.0.0.1:${port}\n`);
     process.stdout.write(`writing events to ${path.join(rootDir, ".eyes4ai", "private", "events")}\n`);
     process.on("SIGINT", () => {
       server.close(() => process.exit(0));
@@ -143,6 +158,7 @@ async function main(): Promise<void> {
   process.stdout.write("  eyes4ai report [--days N] [--json]  Generate an AI activity report\n");
   process.stdout.write("  eyes4ai record-commit [hash]        Record a git commit\n");
   process.stdout.write("  eyes4ai reprocess [file]            Re-normalize events\n");
+  process.stdout.write("  eyes4ai --version                   Show installed version\n");
   process.stdout.write("\nquick start:\n");
   process.stdout.write("  npm install -g @eyes4ai/cli\n");
   process.stdout.write("  eyes4ai install --global\n");

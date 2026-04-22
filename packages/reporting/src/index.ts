@@ -53,32 +53,30 @@ export interface PeriodReport {
   endDate: string;
   days: number;
 
-  // AI activity
   sessions: number;
   turns: number;
   activeDays: number;
   estimatedCost: number;
-
-  // Per-tool breakdown (keyed by source.surface, e.g. "codex", "claude")
   byTool: Record<string, ToolStats>;
 
-  // Committed output
   aiLinkedCommits: number;
   totalCommits: number;
-  filesCommitted: number;
-  linesAdded: number;
-  linesDeleted: number;
-
-  // Yield
-  sessionToCommitRate: number | null;
-  avgTurnsPerCommit: number | null;
+  aiCommitPct: number | null;
+  aiLinesChanged: number;
+  totalLinesChanged: number;
+  aiLinesPct: number | null;
   avgCostPerCommit: number | null;
-  abandonedSessions: number;
+}
+
+export interface DailyActivity {
+  date: string;
+  turns: number;
 }
 
 export interface MvpReport {
   current: PeriodReport;
   previous: PeriodReport | null;
+  dailyActivity: DailyActivity[];
 }
 
 // ── Aggregation ───────────────────────────────────────────────────────
@@ -169,29 +167,22 @@ function computePeriodReport(
   const commitEvents = periodEvents.filter((e) => e.type === "git.commit");
   const totalCommits = commitEvents.length;
   let aiLinkedCommits = 0;
-  let filesCommitted = 0;
-  let linesAdded = 0;
-  let linesDeleted = 0;
-  const sessionsWithCommits = new Set<string>();
+  let aiLinesChanged = 0;
+  let totalLinesChanged = 0;
 
   for (const e of commitEvents) {
     const data = e.data as GitCommitData;
-    filesCommitted += data.filesChanged.length;
-    linesAdded += data.linesAdded ?? 0;
-    linesDeleted += data.linesDeleted ?? 0;
+    const lines = (data.linesAdded ?? 0) + (data.linesDeleted ?? 0);
+    totalLinesChanged += lines;
     if (data.relatedAiSessions.length > 0) {
       aiLinkedCommits++;
-      for (const sid of data.relatedAiSessions) {
-        sessionsWithCommits.add(sid);
-      }
+      aiLinesChanged += lines;
     }
   }
 
-  // Yield metrics
-  const sessionToCommitRate = sessions > 0 ? aiLinkedCommits / sessions : null;
-  const avgTurnsPerCommit = aiLinkedCommits > 0 ? turns / aiLinkedCommits : null;
+  const aiCommitPct = totalCommits > 0 ? aiLinkedCommits / totalCommits : null;
+  const aiLinesPct = totalLinesChanged > 0 ? aiLinesChanged / totalLinesChanged : null;
   const avgCostPerCommit = aiLinkedCommits > 0 ? estimatedCost / aiLinkedCommits : null;
-  const abandonedSessions = sessions > 0 ? sessions - sessionsWithCommits.size : 0;
 
   return {
     periodLabel,
@@ -205,13 +196,11 @@ function computePeriodReport(
     byTool,
     aiLinkedCommits,
     totalCommits,
-    filesCommitted,
-    linesAdded,
-    linesDeleted,
-    sessionToCommitRate,
-    avgTurnsPerCommit,
+    aiCommitPct,
+    aiLinesChanged,
+    totalLinesChanged,
+    aiLinesPct,
     avgCostPerCommit,
-    abandonedSessions,
   };
 }
 
@@ -233,7 +222,19 @@ export async function generateMvpReport(repoPath: string, days: number = 7): Pro
     ? computePeriodReport(events, `previous ${days} days`, prevStartDate, prevEndDate, days)
     : null;
 
-  return { current, previous };
+  // Daily activity for chart
+  const currentEvents = filterByPeriod(events, startDate, endDate);
+  const dayTurns = new Map<string, number>();
+  for (const e of currentEvents) {
+    if (e.type !== "ai.prompt") continue;
+    const day = e.timestamp.slice(0, 10);
+    if (day !== "1970-01-01") dayTurns.set(day, (dayTurns.get(day) ?? 0) + 1);
+  }
+  const dailyActivity: DailyActivity[] = [...dayTurns.entries()]
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([date, turns]) => ({ date, turns }));
+
+  return { current, previous, dailyActivity };
 }
 
 // ── Rendering ─────────────────────────────────────────────────────────
@@ -273,35 +274,21 @@ function toolBreakdown(byTool: Record<string, ToolStats>, accessor: (s: ToolStat
 export function renderMvpReport(report: MvpReport): string {
   const { current: c, previous: p } = report;
   const lines: string[] = [];
-  const multi = Object.keys(c.byTool).length > 1;
 
   lines.push(`Period: ${c.periodLabel}`);
   lines.push("");
-
-  lines.push("AI activity");
   lines.push(pad("Sessions:", String(c.sessions) + toolBreakdown(c.byTool, (s) => String(s.sessions))));
   lines.push(pad("Turns:", String(c.turns) + toolBreakdown(c.byTool, (s) => String(s.turns))));
   lines.push(pad("AI-active days:", `${c.activeDays} / ${c.days}`));
   lines.push(pad("Estimated cost:", money(c.estimatedCost) + toolBreakdown(c.byTool, (s) => money(s.estimatedCost))));
-  lines.push("");
-
-  lines.push("Committed output");
-  lines.push(pad("AI-linked commits:", String(c.aiLinkedCommits)));
-  lines.push(pad("Files committed:", String(c.filesCommitted)));
-  lines.push(pad("Lines changed:", `+${c.linesAdded.toLocaleString()} / -${c.linesDeleted.toLocaleString()}`));
-  lines.push("");
-
-  lines.push("Yield");
-  lines.push(pad("Session-to-commit rate:", pct(c.sessionToCommitRate)));
-  lines.push(pad("Avg turns per commit:", num(c.avgTurnsPerCommit)));
+  lines.push(pad("AI-linked commits:", `${c.aiLinkedCommits} / ${c.totalCommits}` + (c.aiCommitPct !== null ? ` (${pct(c.aiCommitPct)})` : "")));
+  lines.push(pad("AI-linked lines:", `${c.aiLinesChanged.toLocaleString()} / ${c.totalLinesChanged.toLocaleString()}` + (c.aiLinesPct !== null ? ` (${pct(c.aiLinesPct)})` : "")));
   lines.push(pad("Avg cost per commit:", money(c.avgCostPerCommit)));
-  lines.push(pad("Abandoned sessions:", String(c.abandonedSessions)));
 
   if (p) {
     lines.push("");
-    lines.push("Trend");
-    lines.push(pad("Previous period:", `${pct(p.sessionToCommitRate)} yield, ${money(p.avgCostPerCommit)} / commit`));
-    lines.push(pad("This period:", `${pct(c.sessionToCommitRate)} yield, ${money(c.avgCostPerCommit)} / commit`));
+    lines.push(pad("Previous period cost:", money(p.estimatedCost)));
+    lines.push(pad("Previous AI commits:", `${p.aiLinkedCommits} / ${p.totalCommits}` + (p.aiCommitPct !== null ? ` (${pct(p.aiCommitPct)})` : "")));
   }
 
   return lines.join("\n");

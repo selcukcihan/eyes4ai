@@ -41,20 +41,14 @@ eyes4ai report --days 7
 ```
 
 ```
-AI activity
+Period: last 7 days
+
   Sessions:              12  (codex: 8, claude: 4)
   Turns:                 87  (codex: 55, claude: 32)
   AI-active days:        5 / 7
   Estimated cost:        $4.23  (codex: $2.80, claude: $1.43)
-
-Committed output
-  AI-linked commits:     9
-  Lines changed:         +1,247 / -382
-
-Yield
-  Session-to-commit rate:  75%
-  Avg cost per commit:     $0.47
-  Abandoned sessions:      3
+  AI-linked commits:     9 / 14 (64%)
+  Avg cost per commit:   $0.47
 ```
 
 ## How it works

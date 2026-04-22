@@ -28,7 +28,7 @@
     "packages/*"
   ],
   "scripts": {
-    "build": "tsc -p tsconfig.json",
+    "build": "tsc -p tsconfig.json && cp packages/ingestion/src/dashboard.html dist/packages/ingestion/src/",
     "check": "tsc -p tsconfig.json --noEmit",
     "dev": "tsx apps/cli/src/cli.ts",
     "start": "node dist/apps/cli/src/cli.js",

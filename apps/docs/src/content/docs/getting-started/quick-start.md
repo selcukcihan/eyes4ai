@@ -36,26 +36,12 @@ Output:
 ```
 Period: last 7 days
 
-AI activity
-  Sessions:                   8  (codex: 5, claude: 3)
-  Turns:                      42 (codex: 28, claude: 14)
-  AI-active days:             5 / 7
-  Estimated cost:             $12.84  (codex: $7.44, claude: $5.40)
-
-Committed output
-  AI-linked commits:          11
-  Files committed:            37
-  Lines changed:              +1,420 / -510
-
-Yield
-  Session-to-commit rate:     61%
-  Avg turns per commit:       3.8
-  Avg cost per commit:        $1.17
-  Abandoned sessions:         3
-
-Trend
-  Previous period:            48% yield, $1.64 / commit
-  This period:                61% yield, $1.17 / commit
+  Sessions:              8  (codex: 5, claude: 3)
+  Turns:                 42 (codex: 28, claude: 14)
+  AI-active days:        5 / 7
+  Estimated cost:        $12.84  (codex: $7.44, claude: $5.40)
+  AI-linked commits:     11 / 18 (61%)
+  Avg cost per commit:   $1.17
 ```
 
 ## JSON output

@@ -3,6 +3,16 @@ title: CLI Commands
 description: Complete reference for the eyes4ai command-line interface.
 ---
 
+## --version
+
+Print the installed version.
+
+```bash
+eyes4ai --version
+```
+
+Also accepts `-v` and `version` (without dashes).
+
 ## install
 
 Configure AI tools and Git hooks to record activity.
@@ -49,8 +59,12 @@ eyes4ai serve [port]
 
 **Endpoints:**
 
+- `GET /` — Web dashboard with charts and share button
+- `GET /api/report?days=N` — JSON report API
 - `POST /v1/logs` — Accepts OTLP/HTTP JSON log records
 - `GET /health` — Health check
+
+The dashboard is available at `http://127.0.0.1:4318` when the server is running.
 
 Events are written to `.eyes4ai/private/events/YYYY-MM-DD.jsonl` in the current working directory.
 

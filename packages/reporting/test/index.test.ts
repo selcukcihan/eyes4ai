@@ -160,10 +160,8 @@ describe("computePeriodReport (via generateMvpReport)", () => {
     const report = await generateMvpReport(tmpRoot, 7);
     assert.equal(report.current.aiLinkedCommits, 1);
     assert.equal(report.current.totalCommits, 1);
-    assert.equal(report.current.linesAdded, 50);
-    assert.equal(report.current.linesDeleted, 10);
-    assert.equal(report.current.sessionToCommitRate, 0.5); // 1 commit / 2 sessions
-    assert.equal(report.current.abandonedSessions, 1); // s2 has no commit
+    assert.equal(report.current.aiCommitPct, 1); // 1/1 = 100%
+    assert.ok(report.current.avgCostPerCommit === null || typeof report.current.avgCostPerCommit === "number");
   });
 
   it("returns null previous period when no older data", async () => {
@@ -191,23 +189,21 @@ describe("renderMvpReport", () => {
         byTool: {},
         aiLinkedCommits: 0,
         totalCommits: 0,
-        filesCommitted: 0,
-        linesAdded: 0,
-        linesDeleted: 0,
-        sessionToCommitRate: null,
-        avgTurnsPerCommit: null,
+        aiCommitPct: null,
+        aiLinesChanged: 0,
+        totalLinesChanged: 0,
+        aiLinesPct: null,
         avgCostPerCommit: null,
-        abandonedSessions: 0,
       },
       previous: null,
+      dailyActivity: [],
     });
-    assert.ok(output.includes("AI activity"));
-    assert.ok(output.includes("Committed output"));
-    assert.ok(output.includes("Yield"));
-    assert.ok(!output.includes("Trend")); // no previous period
+    assert.ok(output.includes("Sessions:"));
+    assert.ok(output.includes("AI-linked commits:"));
+    assert.ok(!output.includes("Previous")); // no previous period
   });
 
-  it("includes Trend section when previous period exists", () => {
+  it("includes previous period when it exists", () => {
     const period = {
       periodLabel: "test",
       startDate: "2025-04-01",
@@ -220,19 +216,18 @@ describe("renderMvpReport", () => {
       byTool: {},
       aiLinkedCommits: 3,
       totalCommits: 5,
-      filesCommitted: 10,
-      linesAdded: 100,
-      linesDeleted: 20,
-      sessionToCommitRate: 0.6,
-      avgTurnsPerCommit: 6.7,
+      aiCommitPct: 0.6,
+      aiLinesChanged: 72,
+      totalLinesChanged: 120,
+      aiLinesPct: 0.6,
       avgCostPerCommit: 3.33,
-      abandonedSessions: 2,
     };
     const output = renderMvpReport({
       current: period,
       previous: { ...period, periodLabel: "previous 7 days" },
+      dailyActivity: [],
     });
-    assert.ok(output.includes("Trend"));
+    assert.ok(output.includes("Previous"));
   });
 
   it("shows per-tool breakdown when multiple tools present", () => {
@@ -252,15 +247,14 @@ describe("renderMvpReport", () => {
         },
         aiLinkedCommits: 4,
         totalCommits: 6,
-        filesCommitted: 12,
-        linesAdded: 200,
-        linesDeleted: 50,
-        sessionToCommitRate: 0.5,
-        avgTurnsPerCommit: 7.5,
+        aiCommitPct: 0.67,
+        aiLinesChanged: 180,
+        totalLinesChanged: 250,
+        aiLinesPct: 0.72,
         avgCostPerCommit: 3.75,
-        abandonedSessions: 4,
       },
       previous: null,
+      dailyActivity: [],
     });
     assert.ok(output.includes("codex:"));
     assert.ok(output.includes("claude:"));
