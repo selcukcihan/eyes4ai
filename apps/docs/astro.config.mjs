@@ -2,7 +2,7 @@ import { defineConfig } from "astro/config";
 import starlight from "@astrojs/starlight";
 
 export default defineConfig({
-  site: "https://selcukcihan.github.io",
+  site: "https://selcukcihan.com",
   base: "/eyes4ai",
   integrations: [
     starlight({
