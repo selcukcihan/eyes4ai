@@ -11,6 +11,11 @@ export default defineConfig({
     starlight({
       title: "eyes4ai",
       description: "Passive AI activity recorder for Git repositories.",
+      logo: {
+        src: "./src/assets/logo.svg",
+        alt: "eyes4ai logo",
+      },
+      favicon: "/favicon.png",
       social: [
         {
           icon: "github",
