@@ -1,6 +1,19 @@
 ---
-title: Introduction
-description: What eyes4ai is and why you need it.
+title: "eyes4ai — passive AI activity recorder"
+description: "Track AI coding tool usage across Codex, Claude Code, and more. See costs, sessions, and which AI work led to real commits. All data stays local."
+head:
+  - tag: meta
+    attrs:
+      property: og:image
+      content: "https://eyes4ai.selcukcihan.com/og-banner.png"
+  - tag: meta
+    attrs:
+      name: twitter:card
+      content: summary_large_image
+  - tag: meta
+    attrs:
+      name: twitter:image
+      content: "https://eyes4ai.selcukcihan.com/og-banner.png"
 ---
 
 eyes4ai is a passive AI activity recorder for Git repositories. It silently captures how AI coding tools (Codex, Claude Code, and others) are used in your repos — token usage, costs, tool calls, and session data — and correlates that activity with your Git commits.
