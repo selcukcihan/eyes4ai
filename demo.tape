@@ -48,6 +48,7 @@ Enter
 Sleep 500ms
 Type 'git add .'
 Enter
+Sleep 500ms
 Type 'git commit -m "feat: generate video file"'
 Enter
 Sleep 2s
