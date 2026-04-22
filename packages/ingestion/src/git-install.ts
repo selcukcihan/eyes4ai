@@ -11,7 +11,10 @@ function localPostCommitScript(cliPath: string): string {
 ${HOOK_MARKER}
 # Record this commit in the eyes4ai event log.
 # This hook is non-blocking: failures are silently ignored.
-node --import tsx "${cliPath}" record-commit 2>/dev/null &
+# Guard: skip if already recorded by the global hook.
+[ "$EYES4AI_HOOKED" = "1" ] && exit 0
+export EYES4AI_HOOKED=1
+node --import tsx "${cliPath}" record-commit >/dev/null 2>&1 &
 `;
 }
 
@@ -26,7 +29,10 @@ function globalPostCommitScript(): string {
 ${HOOK_MARKER}
 # eyes4ai global post-commit hook.
 # Non-blocking: record-commit runs in background, failures ignored.
-npx --yes eyes4ai record-commit 2>/dev/null &
+# Guard: skip if already recorded (prevents double-recording).
+[ "$EYES4AI_HOOKED" = "1" ] && exit 0
+export EYES4AI_HOOKED=1
+npx --yes eyes4ai record-commit >/dev/null 2>&1 &
 
 # Chain to repo-local hook if one exists, since core.hooksPath
 # overrides .git/hooks/ entirely.
