@@ -134,12 +134,15 @@ async function main(): Promise<void> {
   }
 
   process.stdout.write("usage:\n");
-  process.stdout.write("  eyes4ai install [port] [--global]\n");
-  process.stdout.write("  eyes4ai uninstall\n");
-  process.stdout.write("  eyes4ai serve [port]\n");
-  process.stdout.write("  eyes4ai report [--days N] [--json]\n");
-  process.stdout.write("  eyes4ai record-commit [hash]\n");
-  process.stdout.write("  eyes4ai reprocess [file]\n");
+  process.stdout.write("  eyes4ai install [port] [--global]   Configure AI tools, git hooks, and daemon\n");
+  process.stdout.write("  eyes4ai uninstall                   Remove the background daemon\n");
+  process.stdout.write("  eyes4ai serve [port]                Start the OTel ingestion server\n");
+  process.stdout.write("  eyes4ai report [--days N] [--json]  Generate an AI activity report\n");
+  process.stdout.write("  eyes4ai record-commit [hash]        Record a git commit\n");
+  process.stdout.write("  eyes4ai reprocess [file]            Re-normalize events\n");
+  process.stdout.write("\nquick start:\n");
+  process.stdout.write("  npm install -g @eyes4ai/cli\n");
+  process.stdout.write("  eyes4ai install --global\n");
   process.exitCode = 1;
 }
 
