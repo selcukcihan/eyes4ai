@@ -23,12 +23,14 @@ Sleep 500ms
 Type "npm install -g @eyes4ai/cli"
 Enter
 Sleep 2s
-Type "eyes4ai install 4318 --global"
+Type "eyes4ai install --global"
 Enter
 Sleep 3s
 
 # Step 2: Show what was configured
 Type "# Codex, Claude Code, git hooks, and daemon are now set up"
+Enter
+Type "# Remember to restart any running AI tools!"
 Enter
 Sleep 2s
 
@@ -44,7 +46,9 @@ Sleep 2s
 Type "# Step 3: Commit your work"
 Enter
 Sleep 500ms
-Type 'git commit -m "feat: add auth module"'
+Type 'git add .'
+Enter
+Type 'git commit -m "feat: generate video file"'
 Enter
 Sleep 2s
 
@@ -52,7 +56,7 @@ Sleep 2s
 Type "# Step 4: Check your AI activity report"
 Enter
 Sleep 500ms
-Type "eyes4ai report --days 7"
+Type "eyes4ai report"
 Enter
 Sleep 4s
 
@@ -63,8 +67,6 @@ Type "# Period: last 7 days"
 Enter
 Type "#"
 Enter
-Type "# AI activity"
-Enter
 Type "#   Sessions:          12  (codex: 8, claude: 4)"
 Enter
 Type "#   Turns:             87  (codex: 55, claude: 32)"
@@ -73,23 +75,20 @@ Type "#   AI-active days:    5 / 7"
 Enter
 Type "#   Estimated cost:    $4.23  (codex: $2.80, claude: $1.43)"
 Enter
-Type "#"
+Type "#   AI-linked commits: 9 / 14 (64%)"
 Enter
-Type "# Committed output"
-Enter
-Type "#   AI-linked commits: 9"
-Enter
-Type "#   Lines changed:     +1,247 / -382"
-Enter
-Type "#"
-Enter
-Type "# Yield"
-Enter
-Type "#   Session-to-commit: 75%"
+Type "#   AI-linked lines:   1,247 / 1,892 (66%)"
 Enter
 Type "#   Avg cost/commit:   $0.47"
 Enter
 Sleep 5s
+
+# Dashboard
+Type "# Or open the dashboard in your browser:"
+Enter
+Type "# http://127.0.0.1:4318"
+Enter
+Sleep 3s
 
 Type "# All data stays local. No cloud. No telemetry leaves your machine."
 Enter
