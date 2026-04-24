@@ -30,8 +30,8 @@ Every repo you work in will now record AI activity and commit correlations autom
 If Codex or Claude Code is already running, **restart it** after install. The tools only read their config at startup, so sessions started before install won't emit telemetry.
 :::
 
-:::note
-The global Git hook chains to any existing repo-local `.git/hooks/post-commit`, so your existing hooks keep working.
+:::note[Compatible with existing hook managers]
+The global Git hook chains to your existing post-commit hooks automatically. It detects and delegates to Husky (v4 and v9+), Lefthook, and plain `.git/hooks/post-commit` scripts — your existing hooks keep working.
 :::
 
 ## Per-repo setup
@@ -43,7 +43,7 @@ cd /path/to/your/repo
 eyes4ai install
 ```
 
-This writes config files into the repo's `.codex/`, `.claude/`, and `.git/hooks/` directories.
+This writes config files into the repo's `.codex/`, `.claude/`, and `.git/hooks/` directories. If a `post-commit` hook already exists, eyes4ai appends its snippet rather than replacing it.
 
 ## Custom port
 

@@ -44,6 +44,7 @@ export default defineConfig({
             { label: "CLI Commands", slug: "reference/cli" },
             { label: "Event Schema", slug: "reference/schema" },
             { label: "Architecture", slug: "reference/architecture" },
+            { label: "Telemetry", slug: "reference/telemetry" },
           ],
         },
       ],

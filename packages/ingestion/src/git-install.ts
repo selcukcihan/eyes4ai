@@ -6,23 +6,23 @@ import { ensureDir } from "./fs-utils.js";
 
 const HOOK_MARKER = "# eyes4ai:post-commit";
 
-function localPostCommitScript(cliPath: string): string {
-  return `#!/bin/sh
+function localPostCommitSnippet(): string {
+  return `
 ${HOOK_MARKER}
 # Record this commit in the eyes4ai event log.
 # This hook is non-blocking: failures are silently ignored.
 # Guard: skip if already recorded by the global hook.
 [ "$EYES4AI_HOOKED" = "1" ] && exit 0
 export EYES4AI_HOOKED=1
-node --import tsx "${cliPath}" record-commit >/dev/null 2>&1 &
+eyes4ai record-commit >/dev/null 2>&1 &
 `;
 }
 
 /**
  * Global post-commit hook.
  * Uses the globally-installed eyes4ai binary, and chains to any
- * repo-local .git/hooks/post-commit that may exist, since
- * core.hooksPath causes git to skip .git/hooks/ entirely.
+ * repo-local hook system that may exist (plain hooks, Husky, Lefthook, etc.),
+ * since core.hooksPath causes git to skip .git/hooks/ entirely.
  */
 function globalPostCommitScript(): string {
   return `#!/bin/sh
@@ -34,9 +34,28 @@ ${HOOK_MARKER}
 export EYES4AI_HOOKED=1
 eyes4ai record-commit >/dev/null 2>&1 &
 
-# Chain to repo-local hook if one exists, since core.hooksPath
-# overrides .git/hooks/ entirely.
-REPO_HOOK="$(git rev-parse --git-dir 2>/dev/null)/hooks/post-commit"
+# Chain to the repo's own post-commit hook.
+# core.hooksPath overrides .git/hooks/ entirely, so we must
+# re-invoke whatever the repo would have used.
+GIT_DIR="$(git rev-parse --git-dir 2>/dev/null)"
+
+# 1. Husky (v9+): .husky/post-commit
+if [ -x ".husky/post-commit" ]; then
+  exec .husky/post-commit
+fi
+
+# 2. Husky (v4 / legacy): .husky/hooks/post-commit
+if [ -x ".husky/hooks/post-commit" ]; then
+  exec .husky/hooks/post-commit
+fi
+
+# 3. Lefthook: delegates via lefthook binary
+if command -v lefthook >/dev/null 2>&1 && [ -f "lefthook.yml" -o -f ".lefthook.yml" ]; then
+  lefthook run post-commit
+fi
+
+# 4. Plain .git/hooks/post-commit
+REPO_HOOK="$GIT_DIR/hooks/post-commit"
 if [ -x "$REPO_HOOK" ]; then
   exec "$REPO_HOOK"
 fi
@@ -69,16 +88,17 @@ export async function installGitHook(rootDir: string): Promise<string> {
   await ensureDir(hooksDir);
 
   const hookPath = path.join(hooksDir, "post-commit");
-  const cliPath = path.join(rootDir, "apps", "cli", "src", "cli.ts");
 
   if (await fileExists(hookPath)) {
     const current = await readFile(hookPath, "utf8");
     if (current.includes(HOOK_MARKER)) {
       return hookPath; // already installed
     }
-    await writeFile(hookPath, `${current.trimEnd()}\n\n${localPostCommitScript(cliPath)}`, "utf8");
+    // Append our snippet to the existing hook
+    await writeFile(hookPath, `${current.trimEnd()}\n${localPostCommitSnippet()}`, "utf8");
   } else {
-    await writeFile(hookPath, localPostCommitScript(cliPath), "utf8");
+    // Create new hook with shebang + our snippet
+    await writeFile(hookPath, `#!/bin/sh\n${localPostCommitSnippet()}`, "utf8");
   }
 
   await chmod(hookPath, 0o755);

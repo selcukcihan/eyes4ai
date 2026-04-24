@@ -44,6 +44,23 @@ description: Common issues and how to fix them.
    chmod +x ~/.eyes4ai/hooks/post-commit
    ```
 
+## Existing git hooks stopped working
+
+**Symptom:** After installing eyes4ai, your Husky, Lefthook, or custom post-commit hooks no longer run.
+
+1. **Are you using global mode?** The global hook (`~/.eyes4ai/hooks/post-commit`) automatically chains to Husky (v4 and v9+), Lefthook, and plain `.git/hooks/post-commit`. If your hook manager isn't detected, please [open an issue](https://github.com/selcukcihan/eyes4ai/issues).
+
+2. **Are you using per-repo mode?** Per-repo install appends the eyes4ai snippet to your existing `.git/hooks/post-commit`. Check that the file still has your original hook content above the `# eyes4ai:post-commit` marker:
+   ```bash
+   cat .git/hooks/post-commit
+   ```
+
+3. **Reinstall the hook** if it got corrupted:
+   ```bash
+   eyes4ai install        # per-repo
+   eyes4ai install --global  # global
+   ```
+
 ## Daemon won't start on boot
 
 **macOS:** Check the launchd plist:

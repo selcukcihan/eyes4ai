@@ -84,7 +84,7 @@ All data lives in `.eyes4ai/private/events/` — nothing leaves your machine.
 - All data is stored locally in `.eyes4ai/private/`
 - Raw prompts are never stored — only hashed fingerprints and short previews
 - Sensitive attributes (emails, account IDs) are redacted
-- No network calls except localhost OTel ingestion
+- No network calls except localhost OTel ingestion and optional anonymous telemetry (disable with `EYES4AI_NO_TELEMETRY=1`)
 
 ## Docs
 

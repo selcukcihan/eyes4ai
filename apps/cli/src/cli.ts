@@ -3,7 +3,7 @@ import path from "node:path";
 import process from "node:process";
 import { readFile, writeFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
-import { detectPlatform, installClaudeOtelConfig, installClaudeOtelConfigGlobal, installCodexOtelConfig, installCodexOtelConfigGlobal, installDaemon, installGitHook, installGitHookGlobal, recordCommit, startServer, uninstallDaemon, upgradeNormalizedEvent } from "../../../packages/ingestion/src/index.js";
+import { detectPlatform, installClaudeOtelConfig, installClaudeOtelConfigGlobal, installCodexOtelConfig, installCodexOtelConfigGlobal, installDaemon, installGitHook, installGitHookGlobal, recordCommit, startServer, uninstallDaemon, upgradeNormalizedEvent, trackEvent, trackError } from "../../../packages/ingestion/src/index.js";
 import { generateMvpReport, generateRepoReport, renderMvpReport, renderRepoReport } from "../../../packages/reporting/src/index.js";
 import type { EyesEvent } from "../../../packages/schema/src/index.js";
 
@@ -35,6 +35,7 @@ async function main(): Promise<void> {
     process.stdout.write(`eyes4ai server listening on http://127.0.0.1:${port}\n`);
     process.stdout.write(`dashboard: http://127.0.0.1:${port}\n`);
     process.stdout.write(`writing events to ${path.join(rootDir, ".eyes4ai", "private", "events")}\n`);
+    void trackEvent({ event: "serve" });
     process.on("SIGINT", () => {
       server.close(() => process.exit(0));
     });
@@ -71,8 +72,10 @@ async function main(): Promise<void> {
       }
 
       process.stdout.write(`\nAll repos will now record AI-linked commits automatically.\n`);
+      process.stdout.write(`Existing hooks (Husky, Lefthook, .git/hooks) are preserved.\n`);
       process.stdout.write(`The OTel server is running and will restart on boot.\n`);
       process.stdout.write(`\nIMPORTANT: Restart any running Codex or Claude Code sessions to pick up the new config.\n`);
+      void trackEvent({ event: "install", properties: { mode: "global" } });
     } else {
       const codexPath = await installCodexOtelConfig(rootDir, endpoint);
       process.stdout.write(`codex config: ${codexPath}\n`);
@@ -82,6 +85,7 @@ async function main(): Promise<void> {
       process.stdout.write(`git hook:     ${hookPath}\n`);
       process.stdout.write(`\nIMPORTANT: Restart any running Codex or Claude Code sessions to pick up the new config.\n`);
       process.stdout.write(`Start the server manually: eyes4ai serve\n`);
+      void trackEvent({ event: "install", properties: { mode: "local" } });
     }
     return;
   }
@@ -94,6 +98,7 @@ async function main(): Promise<void> {
       process.stdout.write("no daemon found to remove\n");
     }
     process.stdout.write("note: tool configs and git hooks are left in place. Remove manually if needed.\n");
+    void trackEvent({ event: "uninstall" });
     return;
   }
 
@@ -148,6 +153,7 @@ async function main(): Promise<void> {
     } else {
       process.stdout.write(`${renderMvpReport(report)}\n`);
     }
+    void trackEvent({ event: "report", properties: { days, json: jsonOutput } });
     return;
   }
 
@@ -159,6 +165,8 @@ async function main(): Promise<void> {
   process.stdout.write("  eyes4ai record-commit [hash]        Record a git commit\n");
   process.stdout.write("  eyes4ai reprocess [file]            Re-normalize events\n");
   process.stdout.write("  eyes4ai --version                   Show installed version\n");
+  process.stdout.write("\noptions:\n");
+  process.stdout.write("  --no-telemetry                      Disable anonymous usage telemetry\n");
   process.stdout.write("\nquick start:\n");
   process.stdout.write("  npm install -g @eyes4ai/cli\n");
   process.stdout.write("  eyes4ai install --global\n");

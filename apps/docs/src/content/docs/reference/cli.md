@@ -33,7 +33,7 @@ eyes4ai install [port] [--global]
 | Local (default) | `.codex/config.toml` | `.claude/settings.json` | `.git/hooks/post-commit` |
 | `--global` | `~/.codex/config.toml` | `~/.claude/settings.json` | `~/.eyes4ai/hooks/post-commit` |
 
-Global mode also sets `git config --global core.hooksPath`, chains to repo-local hooks, and starts a background daemon (launchd on macOS, systemd on Linux) so the server auto-starts on boot.
+Global mode also sets `git config --global core.hooksPath`, chains to repo-local hooks (Husky, Lefthook, and plain `.git/hooks/`), and starts a background daemon (launchd on macOS, systemd on Linux) so the server auto-starts on boot. Local mode appends to any existing post-commit hook rather than replacing it.
 
 ## uninstall
 
