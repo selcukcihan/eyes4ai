@@ -1,6 +1,6 @@
 {
   "name": "@eyes4ai/cli",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "description": "Passive AI activity recorder for Git repositories. Tracks usage across Codex, Claude Code, and more.",
   "type": "module",
   "license": "MIT",
